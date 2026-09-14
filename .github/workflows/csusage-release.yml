@@ -2,7 +2,7 @@ name: csusage-release
 
 on:
   push:
-    tags: ['v*']
+    tags: ['csusage-v*']
 
 permissions:
   contents: write
