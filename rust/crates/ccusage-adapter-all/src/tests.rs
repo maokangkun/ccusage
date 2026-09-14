@@ -18,7 +18,7 @@ use crate::{
     cli::{AgentReportKind, CodexSpeed, CostMode, SharedArgs},
     model_aliases::set_model_aliases_for_tests,
 };
-use ccusage_test_support::{
+use csusage_test_support::{
     EnvVarsGuard, claude_science::create_fixture as claude_science_create_fixture, fs_fixture,
     zcode::create_fixture,
 };
@@ -909,7 +909,7 @@ fn table_snapshot(
 }
 
 fn isolated_agent_env(
-    fixture: &ccusage_test_support::Fixture,
+    fixture: &csusage_test_support::Fixture,
     source_key: &'static str,
     source_value: OsString,
 ) -> EnvVarsGuard {

@@ -48,7 +48,7 @@ pub(super) fn paths() -> Result<Vec<PathBuf>> {
 mod tests {
     use std::ffi::OsString;
 
-    use ccusage_test_support::{EnvVarsGuard, fs_fixture};
+    use csusage_test_support::{EnvVarsGuard, fs_fixture};
 
     use super::{OPENCODE_DATA_DIR_ENV, XDG_DATA_HOME_ENV, paths};
 

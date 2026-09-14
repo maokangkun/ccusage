@@ -2,7 +2,7 @@ use std::{ffi::OsString, path::PathBuf};
 
 use crate::arg_parser::ArgParser;
 use crate::help::{print_help_and_exit, print_version_and_exit};
-use ccusage_cli::{
+use csusage_cli::{
     AgentCommandArgs, AgentReportKind, BlocksArgs, CliConfig, CodexSpeed, Command, CostMode,
     CostSource, DATE_BOUND_FORMATS, DailyArgs, OPENCODE_AGENT_REPORTS, STANDARD_AGENT_REPORTS,
     SessionArgs, SharedArgs, SortOrder, StatuslineArgs, VisualBurnRate, WeekDay, WeeklyArgs,
@@ -58,7 +58,7 @@ impl Cli {
     where
         I: IntoIterator<Item = OsString>,
     {
-        Self::parse_from_with_config(args, &ccusage_cli::NoConfig, 5.0, env!("CARGO_PKG_VERSION"))
+        Self::parse_from_with_config(args, &csusage_cli::NoConfig, 5.0, env!("CARGO_PKG_VERSION"))
     }
 
     pub fn parse_from_with_config<I>(

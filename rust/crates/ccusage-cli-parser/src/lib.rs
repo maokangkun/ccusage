@@ -4,7 +4,7 @@
 //! crates need: the parser embeds the generated help tables through a build
 //! script, so keeping it here means editing help text does not invalidate
 //! ccusage-core or any adapter.
-use ccusage_cli::{Command, SharedArgs};
+use csusage_cli::{Command, SharedArgs};
 
 mod arg_parser;
 mod help;

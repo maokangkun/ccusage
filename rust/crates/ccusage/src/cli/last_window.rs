@@ -1,5 +1,5 @@
-use ccusage_cli::{AgentCommandArgs, AgentReportKind, Command, SharedArgs, WeekDay};
-use ccusage_core::{PeriodUnit, format_date, last_periods_since, utc_now};
+use csusage_cli::{AgentCommandArgs, AgentReportKind, Command, SharedArgs, WeekDay};
+use csusage_core::{PeriodUnit, format_date, last_periods_since, utc_now};
 
 use super::Cli;
 
@@ -76,7 +76,7 @@ fn agent_window_target(
 
 #[cfg(test)]
 mod tests {
-    use ccusage_cli::{CodexSpeed, SortOrder, WeeklyArgs};
+    use csusage_cli::{CodexSpeed, SortOrder, WeeklyArgs};
 
     use super::*;
 

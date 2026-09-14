@@ -135,7 +135,7 @@ fn canonical_directory(path: &Path, shared: &SharedArgs, configured: bool) -> Op
 mod tests {
     use std::ffi::OsString;
 
-    use ccusage_test_support::{EnvVarsGuard, fs_fixture};
+    use csusage_test_support::{EnvVarsGuard, fs_fixture};
 
     use super::*;
 

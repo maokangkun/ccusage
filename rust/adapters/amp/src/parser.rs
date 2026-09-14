@@ -21,17 +21,17 @@ use crate::{
 struct AmpThread {
     #[serde(
         default,
-        deserialize_with = "ccusage_adapter_common::jsonl::non_empty_string"
+        deserialize_with = "csusage_adapter_common::jsonl::non_empty_string"
     )]
     id: Option<String>,
     #[serde(
         default,
-        deserialize_with = "ccusage_adapter_common::jsonl::lenient_vec"
+        deserialize_with = "csusage_adapter_common::jsonl::lenient_vec"
     )]
     messages: Vec<AmpMessage>,
     #[serde(
         default,
-        deserialize_with = "ccusage_adapter_common::jsonl::lenient_object"
+        deserialize_with = "csusage_adapter_common::jsonl::lenient_object"
     )]
     usage_ledger: Option<AmpUsageLedger>,
 }
@@ -41,7 +41,7 @@ struct AmpThread {
 struct AmpUsageLedger {
     #[serde(
         default,
-        deserialize_with = "ccusage_adapter_common::jsonl::lenient_array"
+        deserialize_with = "csusage_adapter_common::jsonl::lenient_array"
     )]
     events: Option<Vec<AmpLedgerEvent>>,
 }
@@ -54,12 +54,12 @@ struct AmpLedgerEvent {
     id: Option<Value>,
     #[serde(
         default,
-        deserialize_with = "ccusage_adapter_common::jsonl::non_empty_string"
+        deserialize_with = "csusage_adapter_common::jsonl::non_empty_string"
     )]
     timestamp: Option<String>,
     #[serde(
         default,
-        deserialize_with = "ccusage_adapter_common::jsonl::non_empty_string"
+        deserialize_with = "csusage_adapter_common::jsonl::non_empty_string"
     )]
     model: Option<String>,
     #[serde(default)]
@@ -356,7 +356,7 @@ fn json_value_f64(value: Option<&Value>) -> Option<f64> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
 
     #[test]
     fn falls_back_to_total_tokens_when_amp_parts_are_missing() {

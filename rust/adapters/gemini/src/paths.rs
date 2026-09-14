@@ -48,7 +48,7 @@ mod tests {
     use std::ffi::OsString;
 
     use super::*;
-    use ccusage_test_support::{EnvVarsGuard, fs_fixture};
+    use csusage_test_support::{EnvVarsGuard, fs_fixture};
 
     #[test]
     fn discovers_json_and_jsonl_logs() {

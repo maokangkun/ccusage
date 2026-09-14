@@ -585,7 +585,7 @@ mod tests {
 
     use super::{DailyLoadedEntry, push_deduped_daily_entry, read_daily_usage_file};
     use crate::{TimestampMs, TokenUsageRaw, cli::CostMode};
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
 
     #[test]
     fn keeps_parent_daily_usage_when_sidechain_replays_message_with_new_request_id() {

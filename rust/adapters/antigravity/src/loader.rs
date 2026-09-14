@@ -82,7 +82,7 @@ fn deduplicate_events(
 mod tests {
     use std::ffi::OsString;
 
-    use ccusage_test_support::{EnvVarsGuard, Fixture};
+    use csusage_test_support::{EnvVarsGuard, Fixture};
     use serde_json::json;
 
     use super::*;
@@ -690,8 +690,8 @@ mod tests {
                     json!({
                     "json": crate::report::report_from_rows(&rows, kind),
                     "table": rows.iter().map(|row| json!({
-                        "firstColumn": ccusage_core::first_column(kind),
-                        "period": ccusage_core::summary_period(row),
+                        "firstColumn": csusage_core::first_column(kind),
+                        "period": csusage_core::summary_period(row),
                             "models": row.models_used,
                             "input": row.input_tokens,
                             "output": row.output_tokens,

@@ -111,7 +111,7 @@ mod tests {
 
     use super::*;
     use crate::{PricingMap, cli::CostMode};
-    use ccusage_test_support::{EnvVarGuard, fs_fixture};
+    use csusage_test_support::{EnvVarGuard, fs_fixture};
 
     fn create_db_message(path: &Path, id: &str, session_id: &str, data: &str) {
         let db = sqlite::open(path).unwrap();

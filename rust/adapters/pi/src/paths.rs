@@ -48,7 +48,7 @@ fn existing_paths(raw: &str, to_path: impl Fn(&str) -> PathBuf) -> Vec<PathBuf> 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ccusage_test_support::{EnvVarGuard, fs_fixture};
+    use csusage_test_support::{EnvVarGuard, fs_fixture};
 
     #[test]
     fn named_store_path_expands_home_directory() {

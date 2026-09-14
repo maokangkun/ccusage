@@ -9,7 +9,7 @@ use crate::{
 pub fn report_from_rows(rows: &[crate::UsageSummary], kind: AgentReportKind) -> Value {
     let rows_json = rows
         .iter()
-        .map(|row| ccusage_core::agent_summary_json(row, kind, false))
+        .map(|row| csusage_core::agent_summary_json(row, kind, false))
         .collect::<Vec<_>>();
     json!({
         rows_key(kind): rows_json,

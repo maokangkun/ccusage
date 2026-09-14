@@ -12,7 +12,7 @@ use crate::{
     apply_total_token_fallback, calculate_cost_for_usage_at, cli::CostMode, fast::LinePrefilter,
     format_date_tz, missing_pricing_model_for_candidates,
 };
-use ccusage_adapter_common::jsonl;
+use csusage_adapter_common::jsonl;
 
 const DEFAULT_MODEL: &str = "kimi-for-coding";
 const DEFAULT_PROVIDER: &str = "moonshot";
@@ -438,7 +438,7 @@ fn kimi_for_coding_pricing_model(timestamp: TimestampMs) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
 
     #[test]
     fn kimi_root_resolves_correctly_for_both_path_layouts() {

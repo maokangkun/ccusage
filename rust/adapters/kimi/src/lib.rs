@@ -1,7 +1,7 @@
-use ccusage_adapter_common::{
+use csusage_adapter_common::{
     collect_files_with_extension, filter_loaded_entries_by_date, read_files_parallel,
 };
-use ccusage_core::*;
+use csusage_core::*;
 
 mod loader;
 mod parser;
@@ -28,7 +28,7 @@ pub fn run(args: AgentCommandArgs) -> Result<()> {
     filter_loaded_entries_by_date(&mut entries, &shared);
     let mut rows = summarize_entries(&entries, args.kind)?;
     sort_summaries(&mut rows, &shared.order, |row| {
-        ccusage_core::summary_period(row)
+        csusage_core::summary_period(row)
     });
     if wants_json(&shared) {
         return print_json_or_jq(
@@ -39,7 +39,7 @@ pub fn run(args: AgentCommandArgs) -> Result<()> {
     }
     print_usage_table(
         "Kimi Token Usage Report",
-        ccusage_core::first_column(args.kind),
+        csusage_core::first_column(args.kind),
         &rows,
         &shared,
         false,

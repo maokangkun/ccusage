@@ -9,7 +9,7 @@ use crate::{
     apply_total_token_fallback, calculate_cost_for_usage_at, cli::CostMode, fast::LinePrefilter,
     format_date_tz, missing_pricing_model_for_usage,
 };
-use ccusage_adapter_common::jsonl;
+use csusage_adapter_common::jsonl;
 
 /// A single parsed OpenClaw session line. Only the fields ccusage consumes are
 /// declared; serde skips everything else. Both `model_change`/`model-snapshot`
@@ -401,7 +401,7 @@ pub(super) fn entry_id(entry: &LoadedEntry) -> String {
 
 #[cfg(test)]
 mod tests {
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
 
     use super::*;
 

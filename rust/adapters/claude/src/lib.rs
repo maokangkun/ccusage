@@ -1,5 +1,5 @@
-use ccusage_adapter_common::{chunk_file_indexes_by_size, read_files_parallel};
-use ccusage_core::*;
+use csusage_adapter_common::{chunk_file_indexes_by_size, read_files_parallel};
+use csusage_core::*;
 
 mod daily;
 mod paths;
@@ -626,7 +626,7 @@ mod tests {
         LoadedEntry, PricingMap, TimestampMs, TokenUsageRaw, UsageEntry, UsageMessage,
         cli::CostMode,
     };
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
 
     #[test]
     fn limits_usage_file_discovery_to_requested_project() {

@@ -370,7 +370,7 @@ mod tests {
 
     #[test]
     fn preserves_provider_lock_timestamp_for_pricing() {
-        let fixture = ccusage_test_support::fs_fixture!({
+        let fixture = csusage_test_support::fs_fixture!({
             "session.settings.json": r#"{
                 "providerLockTimestamp": "2026-08-17T01:00:00Z",
                 "tokenUsage": {"inputTokens": 1}
@@ -389,7 +389,7 @@ mod tests {
 
     #[test]
     fn leaves_pricing_timestamp_empty_when_only_file_metadata_is_available() {
-        let fixture = ccusage_test_support::fs_fixture!({
+        let fixture = csusage_test_support::fs_fixture!({
             "session.settings.json": r#"{
                 "tokenUsage": {"inputTokens": 1}
             }"#

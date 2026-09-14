@@ -51,7 +51,7 @@ mod tests {
     use std::path::Path;
 
     use super::*;
-    use ccusage_test_support::{EnvVarGuard, fs_fixture};
+    use csusage_test_support::{EnvVarGuard, fs_fixture};
 
     #[test]
     fn discovers_goose_path_root_database() {

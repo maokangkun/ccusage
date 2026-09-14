@@ -107,7 +107,7 @@ pub(super) fn row_to_entry(
         None
     } else {
         (total_usage_tokens(usage).saturating_add(extra_total_tokens) > 0)
-            .then(|| ccusage_core::model_aliases::resolve_model_name(&raw_model).into_owned())
+            .then(|| csusage_core::model_aliases::resolve_model_name(&raw_model).into_owned())
     };
 
     Some(LoadedEntry {

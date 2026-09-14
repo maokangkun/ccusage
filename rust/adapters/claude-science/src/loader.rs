@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use ccusage_core::{
+use csusage_core::{
     LoadedEntry, PricingMap, Result, TimestampMs, TokenUsageRaw, UsageEntry, UsageMessage,
     calculate_cost_for_usage_at, cli_error, debug_log, format_date_tz, format_rfc3339_millis,
     parse_tz,
@@ -160,7 +160,7 @@ fn frame_to_loaded(
         cache_creation: None,
     };
     let model = normalize_model(&frame.model).to_string();
-    let missing_pricing_model = ccusage_core::missing_pricing_model_for_usage(
+    let missing_pricing_model = csusage_core::missing_pricing_model_for_usage(
         Some(&model),
         usage,
         frame.recorded_cost_usd,

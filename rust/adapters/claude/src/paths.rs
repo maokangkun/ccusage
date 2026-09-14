@@ -7,7 +7,7 @@ use memchr::memmem;
 
 use crate::{Result, cli_error, fast::FxHashSet, home, path_utils::expand_home_path};
 use crate::{TimestampMs, parse_ts_timestamp};
-use ccusage_adapter_common::collect_usage_files;
+use csusage_adapter_common::collect_usage_files;
 
 pub fn claude_paths() -> Result<Vec<PathBuf>> {
     let mut paths = Vec::new();

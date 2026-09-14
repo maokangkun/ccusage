@@ -264,7 +264,7 @@ fn dedupe_codex_events(events: &mut Vec<CodexTokenUsageEvent>) {
 mod tests {
     use super::*;
 
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
     use serde_json::json;
 
     use crate::paths::CodexUsageSource;

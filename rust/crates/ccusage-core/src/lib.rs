@@ -18,7 +18,7 @@ pub mod types;
 pub mod utils;
 
 pub mod cli {
-    pub use ccusage_cli::*;
+    pub use csusage_cli::*;
 }
 
 pub use agent_report::{agent_summary_json, first_column, summary_period};
@@ -49,7 +49,7 @@ pub use utils::{
     apply_total_token_fallback, json_value_u64, non_empty_json_string, total_usage_tokens,
 };
 
-pub use ccusage_terminal::{Align, Color, SimpleTable, TerminalStyle, terminal_width};
+pub use csusage_terminal::{Align, Color, SimpleTable, TerminalStyle, terminal_width};
 
 pub const DEFAULT_SESSION_DURATION_HOURS: f64 = 5.0;
 pub const DEFAULT_RECENT_DAYS: i64 = 3;
@@ -113,11 +113,11 @@ pub fn terminal_style(shared: &cli::SharedArgs) -> TerminalStyle {
 }
 
 pub fn color(shared: &cli::SharedArgs, value: impl AsRef<str>, color: Color) -> String {
-    ccusage_terminal::color(terminal_style(shared), value, color)
+    csusage_terminal::color(terminal_style(shared), value, color)
 }
 
 pub fn print_box_title(title: &str, shared: &cli::SharedArgs) {
-    ccusage_terminal::print_box_title(title, terminal_style(shared));
+    csusage_terminal::print_box_title(title, terminal_style(shared));
 }
 
 pub trait Context<T> {

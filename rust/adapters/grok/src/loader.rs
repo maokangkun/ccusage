@@ -70,7 +70,7 @@ pub fn has_data() -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ccusage_test_support::{EnvVarsGuard, fs_fixture};
+    use csusage_test_support::{EnvVarsGuard, fs_fixture};
     use std::ffi::OsString;
 
     fn turn(

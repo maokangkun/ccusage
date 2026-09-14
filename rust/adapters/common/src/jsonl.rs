@@ -6,7 +6,7 @@
 //! loader so every adapter shares the same optimizations:
 //!
 //! 1. Read the whole file once and split it into byte slices with
-//!    [`byte_lines`](ccusage_core::fast::byte_lines), avoiding a `String` allocation
+//!    [`byte_lines`](csusage_core::fast::byte_lines), avoiding a `String` allocation
 //!    per line.
 //! 2. Skip lines that cannot possibly match using a precompiled `memmem`
 //!    substring prefilter, before any JSON parsing happens.
@@ -16,7 +16,7 @@
 
 use serde::{Deserialize, Deserializer, de::DeserializeOwned};
 
-use ccusage_core::fast::{LinePrefilter, byte_lines};
+use csusage_core::fast::{LinePrefilter, byte_lines};
 
 /// Iterate over deserialized JSONL records contained in `content`.
 ///
@@ -187,7 +187,7 @@ where
 
 /// Deserialize a JSON value into a trimmed, non-empty [`String`].
 ///
-/// Mirrors [`ccusage_core::non_empty_json_string`]: non-string values and
+/// Mirrors [`csusage_core::non_empty_json_string`]: non-string values and
 /// empty-after-trim strings become `None`, and surviving strings are trimmed.
 /// This keeps typed structs lenient about unexpected field types instead of
 /// erroring on the whole line.
@@ -198,7 +198,7 @@ where
     D: Deserializer<'de>,
 {
     let value = Option::<serde_json::Value>::deserialize(deserializer)?;
-    Ok(ccusage_core::non_empty_json_string(value.as_ref()))
+    Ok(csusage_core::non_empty_json_string(value.as_ref()))
 }
 
 #[cfg(test)]
@@ -209,7 +209,7 @@ mod tests {
         lenient_array, lenient_f64, lenient_i64, lenient_object, lenient_u64, lenient_vec,
         non_empty_string, records,
     };
-    use ccusage_core::fast::LinePrefilter;
+    use csusage_core::fast::LinePrefilter;
 
     #[derive(Debug, PartialEq, Deserialize)]
     struct Record {

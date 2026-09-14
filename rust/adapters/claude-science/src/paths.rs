@@ -197,7 +197,7 @@ fn projects_table_exists(connection: &sqlite::Connection) -> bool {
 mod tests {
     use std::ffi::OsString;
 
-    use ccusage_test_support::{EnvVarsGuard, fs_fixture};
+    use csusage_test_support::{EnvVarsGuard, fs_fixture};
 
     use super::*;
 

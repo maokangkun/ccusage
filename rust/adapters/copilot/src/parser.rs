@@ -11,7 +11,7 @@ use crate::{
     Result, TimestampMs, TokenUsageRaw, apply_total_token_fallback, fast::LinePrefilter,
     parse_ts_timestamp,
 };
-use ccusage_adapter_common::jsonl;
+use csusage_adapter_common::jsonl;
 
 /// A single parsed Copilot OpenTelemetry record. Only the fields ccusage
 /// consumes are declared; serde skips everything else. The `attributes` block
@@ -716,7 +716,7 @@ fn file_modified_timestamp(path: &Path) -> TimestampMs {
 
 #[cfg(test)]
 mod session_state_tests {
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
     use serde_json::json;
 
     use super::*;

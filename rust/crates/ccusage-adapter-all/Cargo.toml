@@ -1,36 +1,38 @@
 [package]
-name = "ccusage-adapter-all"
+name = "csusage-adapter-all"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
+license.workspace = true
+description.workspace = true
 
 [dependencies]
-ccusage-adapter-amp.workspace = true
-ccusage-adapter-antigravity.workspace = true
-ccusage-adapter-claude.workspace = true
-ccusage-adapter-claude-science.workspace = true
-ccusage-adapter-codebuff.workspace = true
-ccusage-adapter-codex.workspace = true
-ccusage-adapter-common.workspace = true
-ccusage-adapter-copilot.workspace = true
-ccusage-adapter-droid.workspace = true
-ccusage-adapter-gemini.workspace = true
-ccusage-adapter-goose.workspace = true
-ccusage-adapter-grok.workspace = true
-ccusage-adapter-hermes.workspace = true
-ccusage-adapter-kilo.workspace = true
-ccusage-adapter-kimi.workspace = true
-ccusage-adapter-openclaw.workspace = true
-ccusage-adapter-opencode.workspace = true
-ccusage-adapter-pi.workspace = true
-ccusage-adapter-qwen.workspace = true
-ccusage-adapter-zcode.workspace = true
-ccusage-cli.workspace = true
-ccusage-core.workspace = true
+csusage-adapter-amp.workspace = true
+csusage-adapter-antigravity.workspace = true
+csusage-adapter-claude.workspace = true
+csusage-adapter-claude-science.workspace = true
+csusage-adapter-codebuff.workspace = true
+csusage-adapter-codex.workspace = true
+csusage-adapter-common.workspace = true
+csusage-adapter-copilot.workspace = true
+csusage-adapter-droid.workspace = true
+csusage-adapter-gemini.workspace = true
+csusage-adapter-goose.workspace = true
+csusage-adapter-grok.workspace = true
+csusage-adapter-hermes.workspace = true
+csusage-adapter-kilo.workspace = true
+csusage-adapter-kimi.workspace = true
+csusage-adapter-openclaw.workspace = true
+csusage-adapter-opencode.workspace = true
+csusage-adapter-pi.workspace = true
+csusage-adapter-qwen.workspace = true
+csusage-adapter-zcode.workspace = true
+csusage-cli.workspace = true
+csusage-core.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
-ccusage-test-support.workspace = true
+csusage-test-support.workspace = true
 insta.workspace = true
 sqlite.workspace = true

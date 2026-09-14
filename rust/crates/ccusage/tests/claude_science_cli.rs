@@ -1,4 +1,4 @@
-use ccusage_test_support::{Fixture, claude_science::create_fixture};
+use csusage_test_support::{Fixture, claude_science::create_fixture};
 
 #[test]
 fn claude_science_cli_tables_snapshot_production_stdout_and_stderr() {
@@ -7,7 +7,7 @@ fn claude_science_cli_tables_snapshot_production_stdout_and_stderr() {
     create_fixture(fixture.path("claude-science/metadata.db"));
 
     for kind in ["daily", "monthly", "session"] {
-        let output = std::process::Command::new(env!("CARGO_BIN_EXE_ccusage"))
+        let output = std::process::Command::new(env!("CARGO_BIN_EXE_csusage"))
             .env_clear()
             .env("HOME", fixture.path("home"))
             .env("USERPROFILE", fixture.path("userprofile"))

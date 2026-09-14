@@ -303,7 +303,7 @@ use super::report::{report_from_rows, summarize_entries};
 mod tests {
     use std::ffi::OsString;
 
-    use ccusage_test_support::{EnvVarsGuard, fs_fixture};
+    use csusage_test_support::{EnvVarsGuard, fs_fixture};
     use serde_json::json;
 
     use super::super::parser::parse_otel_file;
@@ -666,7 +666,7 @@ mod tests {
 
         let entries = load_entries_inner(&shared, &crate::PricingMap::default()).unwrap();
         let mut entries = entries;
-        ccusage_adapter_common::filter_loaded_entries_by_date(&mut entries, &shared);
+        csusage_adapter_common::filter_loaded_entries_by_date(&mut entries, &shared);
 
         assert_eq!(entries.len(), 2);
         assert_eq!(entries[0].data.message.usage.input_tokens, 70);
@@ -747,7 +747,7 @@ mod tests {
 
         let entries = load_entries_inner(&shared, &crate::PricingMap::default()).unwrap();
         let mut entries = entries;
-        ccusage_adapter_common::filter_loaded_entries_by_date(&mut entries, &shared);
+        csusage_adapter_common::filter_loaded_entries_by_date(&mut entries, &shared);
 
         assert_eq!(entries.len(), 2);
         assert_eq!(entries[0].data.message.usage.input_tokens, 80);

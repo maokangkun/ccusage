@@ -6,7 +6,7 @@ use std::{
     time::Duration,
 };
 
-use ccusage_terminal::{terminal_width, truncate_to_width};
+use csusage_terminal::{terminal_width, truncate_to_width};
 
 const SPINNER_FRAMES: [&str; 10] = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 const SPINNER_INTERVAL: Duration = Duration::from_millis(80);

@@ -1,6 +1,6 @@
 use serde_json::{Value, json};
 
-use ccusage_adapter_common::print_table_for_agent;
+use csusage_adapter_common::print_table_for_agent;
 
 use crate::{
     BucketKind, LoadedEntry, Result, cli::AgentReportKind, cli::SharedArgs, cli::WeekDay,
@@ -10,7 +10,7 @@ use crate::{
 pub fn report_from_rows(rows: &[crate::UsageSummary], kind: AgentReportKind) -> Value {
     let rows_json = rows
         .iter()
-        .map(|row| ccusage_core::agent_summary_json(row, kind, false))
+        .map(|row| csusage_core::agent_summary_json(row, kind, false))
         .collect::<Vec<_>>();
     json!({
         rows_key(kind): rows_json,

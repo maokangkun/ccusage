@@ -1,6 +1,6 @@
 use std::{collections::HashSet, env, fs, path::PathBuf};
 
-use ccusage_adapter_common::collect_files_with_extension;
+use csusage_adapter_common::collect_files_with_extension;
 
 use crate::Result;
 
@@ -60,7 +60,7 @@ pub(super) fn conversation_db_paths() -> Result<Vec<PathBuf>> {
 mod tests {
     use std::ffi::OsString;
 
-    use ccusage_test_support::{EnvVarsGuard, fs_fixture};
+    use csusage_test_support::{EnvVarsGuard, fs_fixture};
 
     use super::*;
 

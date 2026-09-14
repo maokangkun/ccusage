@@ -2,7 +2,7 @@ use std::{collections::HashSet, path::Path};
 
 use jiff::tz::TimeZone as JiffTimeZone;
 
-use ccusage_adapter_common::read_files_parallel;
+use csusage_adapter_common::read_files_parallel;
 
 use crate::{LoadedEntry, PricingMap, Result, cli::SharedArgs, debug_log, parse_tz};
 
@@ -319,7 +319,7 @@ fn read_timestamp_ms(statement: &sqlite::Statement<'_>, index: usize) -> Option<
 mod tests {
     use std::path::Path;
 
-    use ccusage_test_support::{EnvVarGuard, fs_fixture};
+    use csusage_test_support::{EnvVarGuard, fs_fixture};
 
     use super::*;
     use crate::{PricingMap, cli::CostMode};

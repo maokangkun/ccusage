@@ -90,7 +90,7 @@ pub(crate) fn ensure_ansi_reset(value: &str) -> String {
 /// # Examples
 ///
 /// ```
-/// use ccusage_terminal::truncate_to_width;
+/// use csusage_terminal::truncate_to_width;
 ///
 /// assert_eq!(truncate_to_width("fits", 10), "fits");
 /// assert_eq!(truncate_to_width("Loading usage logs", 10), "Loading u…");

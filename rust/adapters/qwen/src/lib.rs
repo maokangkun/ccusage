@@ -1,7 +1,7 @@
-use ccusage_adapter_common::{
+use csusage_adapter_common::{
     collect_files_with_extension, filter_loaded_entries_by_date, read_files_parallel,
 };
-use ccusage_core::*;
+use csusage_core::*;
 
 mod loader;
 mod parser;
@@ -30,7 +30,7 @@ pub fn run(args: AgentCommandArgs) -> Result<()> {
         filter_session_summaries(&mut rows, &args.shared);
     }
     sort_summaries(&mut rows, &args.shared.order, |row| {
-        ccusage_core::summary_period(row)
+        csusage_core::summary_period(row)
     });
     if wants_json(&args.shared) {
         return print_json_or_jq(
@@ -41,7 +41,7 @@ pub fn run(args: AgentCommandArgs) -> Result<()> {
     }
     print_usage_table(
         "Qwen Token Usage Report",
-        ccusage_core::first_column(args.kind),
+        csusage_core::first_column(args.kind),
         &rows,
         &args.shared,
         false,
@@ -72,7 +72,7 @@ pub fn has_data() -> bool {
 
 #[cfg(test)]
 mod tests {
-    use ccusage_test_support::{EnvVarGuard, fs_fixture};
+    use csusage_test_support::{EnvVarGuard, fs_fixture};
     use serde_json::json;
 
     use super::*;

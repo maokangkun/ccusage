@@ -12,8 +12,8 @@ pub(crate) use blocks::{
     identify_session_blocks, print_active_block_detail, print_blocks_table, sort_blocks,
 };
 #[cfg(test)]
-pub(crate) use ccusage_adapter_common::chunk_file_indexes_by_size;
-pub(crate) use ccusage_core::*;
+pub(crate) use csusage_adapter_common::chunk_file_indexes_by_size;
+pub(crate) use csusage_core::*;
 use cli::{AgentCommandArgs, AgentReportKind, Command};
 #[cfg(test)]
 use pricing::PricingMap;
@@ -70,7 +70,7 @@ fn main() -> Result<()> {
 mod tests {
     use std::{collections::HashMap, fs, sync::Arc};
 
-    use ccusage_test_support::{EnvVarGuard, fs_fixture};
+    use csusage_test_support::{EnvVarGuard, fs_fixture};
     use serde_json::json;
 
     use super::*;
@@ -82,7 +82,7 @@ mod tests {
     #[test]
     fn shared_usage_types_are_exposed_by_core_crate() {
         assert_eq!(
-            std::any::type_name::<ccusage_core::TokenUsageRaw>(),
+            std::any::type_name::<csusage_core::TokenUsageRaw>(),
             std::any::type_name::<TokenUsageRaw>()
         );
     }
@@ -90,24 +90,24 @@ mod tests {
     #[test]
     fn agent_commands_are_exposed_by_independent_crates() {
         let runs: [fn(AgentCommandArgs) -> Result<()>; 18] = [
-            ccusage_adapter_amp::run,
-            ccusage_adapter_antigravity::run,
-            ccusage_adapter_codebuff::run,
-            ccusage_adapter_codex::run,
-            ccusage_adapter_copilot::run,
-            ccusage_adapter_droid::run,
-            ccusage_adapter_gemini::run,
-            ccusage_adapter_goose::run,
-            ccusage_adapter_grok::run,
-            ccusage_adapter_hermes::run,
-            ccusage_adapter_kilo::run,
-            ccusage_adapter_kimi::run,
-            ccusage_adapter_openclaw::run,
-            ccusage_adapter_opencode::run,
-            ccusage_adapter_pi::run,
-            ccusage_adapter_qwen::run,
-            ccusage_adapter_zcode::run,
-            ccusage_adapter_claude_science::run,
+            csusage_adapter_amp::run,
+            csusage_adapter_antigravity::run,
+            csusage_adapter_codebuff::run,
+            csusage_adapter_codex::run,
+            csusage_adapter_copilot::run,
+            csusage_adapter_droid::run,
+            csusage_adapter_gemini::run,
+            csusage_adapter_goose::run,
+            csusage_adapter_grok::run,
+            csusage_adapter_hermes::run,
+            csusage_adapter_kilo::run,
+            csusage_adapter_kimi::run,
+            csusage_adapter_openclaw::run,
+            csusage_adapter_opencode::run,
+            csusage_adapter_pi::run,
+            csusage_adapter_qwen::run,
+            csusage_adapter_zcode::run,
+            csusage_adapter_claude_science::run,
         ];
 
         assert_eq!(runs.len(), 18);
@@ -115,7 +115,7 @@ mod tests {
 
     #[test]
     fn unified_command_is_exposed_by_independent_crate() {
-        let run: fn(AgentCommandArgs) -> Result<()> = ccusage_adapter_all::run;
+        let run: fn(AgentCommandArgs) -> Result<()> = csusage_adapter_all::run;
 
         assert_eq!(
             std::mem::size_of_val(&run),

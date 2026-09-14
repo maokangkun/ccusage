@@ -1,8 +1,10 @@
 [package]
-name = "ccusage-config"
+name = "csusage-config"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
+license.workspace = true
+description.workspace = true
 
 # Owning the generator here means building it compiles the config layer and its two
 # dependencies rather than the binary's whole adapter graph.
@@ -11,12 +13,12 @@ name = "generate-config-schema"
 path = "src/bin/generate_config_schema.rs"
 
 [dependencies]
-ccusage-cli.workspace = true
-ccusage-core.workspace = true
+csusage-cli.workspace = true
+csusage-core.workspace = true
 schemars.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
-ccusage-test-support.workspace = true
+csusage-test-support.workspace = true
 insta.workspace = true

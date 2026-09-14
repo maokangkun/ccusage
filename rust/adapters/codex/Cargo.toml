@@ -1,12 +1,14 @@
 [package]
-name = "ccusage-adapter-codex"
+name = "csusage-adapter-codex"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
+license.workspace = true
+description.workspace = true
 
 [dependencies]
-ccusage-adapter-common.workspace = true
-ccusage-core.workspace = true
+csusage-adapter-common.workspace = true
+csusage-core.workspace = true
 compact_str.workspace = true
 jiff.workspace = true
 memchr.workspace = true
@@ -15,5 +17,5 @@ serde.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
-ccusage-test-support.workspace = true
+csusage-test-support.workspace = true
 insta.workspace = true

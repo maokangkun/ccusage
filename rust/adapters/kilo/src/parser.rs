@@ -8,7 +8,7 @@ use crate::{
     apply_total_token_fallback, calculate_cost_for_usage_at, cli::CostMode, format_date_tz,
     missing_pricing_model_for_candidates,
 };
-use ccusage_adapter_common::jsonl;
+use csusage_adapter_common::jsonl;
 
 /// A single parsed Kilo message row payload. Only the fields ccusage consumes
 /// are declared; serde skips everything else.

@@ -3,46 +3,49 @@
 # everything that is not tied to a single source, including the unified report.
 # Both are globs so a layer can be built from a filtered source tree containing
 # only some crates — a glob that matches nothing is an error, which is why
-# ccusage-adapter-common lives with the adapters: every layer includes it.
+# csusage-adapter-common lives with the adapters: every layer includes it.
 members = ["adapters/*", "crates/*"]
 resolver = "2"
 
 # Every workspace crate inherits these, so a version or edition bump is one edit.
 [workspace.package]
-version = "0.0.0"
+version = "0.0.2"
 edition = "2024"
-publish = false
+publish = true
+license = "MIT"
+description = "Coding agent CLI usage reports (ccusage fork with Claude Science support)"
+repository = "https://github.com/maokangkun/ccusage"
 
 # Shared dependency specs. Crates opt in with `<dep>.workspace = true`, which keeps
 # the per-crate manifests to a list of what that crate actually uses.
 [workspace.dependencies]
-ccusage-adapter-all = { path = "crates/ccusage-adapter-all" }
-ccusage-adapter-amp = { path = "adapters/amp" }
-ccusage-adapter-antigravity = { path = "adapters/antigravity" }
-ccusage-adapter-claude = { path = "adapters/claude" }
-ccusage-adapter-claude-science = { path = "adapters/claude-science" }
-ccusage-adapter-codebuff = { path = "adapters/codebuff" }
-ccusage-adapter-codex = { path = "adapters/codex" }
-ccusage-adapter-common = { path = "adapters/common" }
-ccusage-adapter-copilot = { path = "adapters/copilot" }
-ccusage-adapter-droid = { path = "adapters/droid" }
-ccusage-adapter-gemini = { path = "adapters/gemini" }
-ccusage-adapter-goose = { path = "adapters/goose" }
-ccusage-adapter-grok = { path = "adapters/grok" }
-ccusage-adapter-hermes = { path = "adapters/hermes" }
-ccusage-adapter-kilo = { path = "adapters/kilo" }
-ccusage-adapter-kimi = { path = "adapters/kimi" }
-ccusage-adapter-openclaw = { path = "adapters/openclaw" }
-ccusage-adapter-opencode = { path = "adapters/opencode" }
-ccusage-adapter-pi = { path = "adapters/pi" }
-ccusage-adapter-qwen = { path = "adapters/qwen" }
-ccusage-adapter-zcode = { path = "adapters/zcode" }
-ccusage-cli = { path = "crates/ccusage-cli" }
-ccusage-cli-parser = { path = "crates/ccusage-cli-parser" }
-ccusage-config = { path = "crates/ccusage-config" }
-ccusage-core = { path = "crates/ccusage-core" }
-ccusage-terminal = { path = "crates/ccusage-terminal" }
-ccusage-test-support = { path = "crates/ccusage-test-support" }
+csusage-adapter-all = { path = "crates/ccusage-adapter-all", version = "0.0.2" }
+csusage-adapter-amp = { path = "adapters/amp", version = "0.0.2" }
+csusage-adapter-antigravity = { path = "adapters/antigravity", version = "0.0.2" }
+csusage-adapter-claude = { path = "adapters/claude", version = "0.0.2" }
+csusage-adapter-claude-science = { path = "adapters/claude-science", version = "0.0.2" }
+csusage-adapter-codebuff = { path = "adapters/codebuff", version = "0.0.2" }
+csusage-adapter-codex = { path = "adapters/codex", version = "0.0.2" }
+csusage-adapter-common = { path = "adapters/common", version = "0.0.2" }
+csusage-adapter-copilot = { path = "adapters/copilot", version = "0.0.2" }
+csusage-adapter-droid = { path = "adapters/droid", version = "0.0.2" }
+csusage-adapter-gemini = { path = "adapters/gemini", version = "0.0.2" }
+csusage-adapter-goose = { path = "adapters/goose", version = "0.0.2" }
+csusage-adapter-grok = { path = "adapters/grok", version = "0.0.2" }
+csusage-adapter-hermes = { path = "adapters/hermes", version = "0.0.2" }
+csusage-adapter-kilo = { path = "adapters/kilo", version = "0.0.2" }
+csusage-adapter-kimi = { path = "adapters/kimi", version = "0.0.2" }
+csusage-adapter-openclaw = { path = "adapters/openclaw", version = "0.0.2" }
+csusage-adapter-opencode = { path = "adapters/opencode", version = "0.0.2" }
+csusage-adapter-pi = { path = "adapters/pi", version = "0.0.2" }
+csusage-adapter-qwen = { path = "adapters/qwen", version = "0.0.2" }
+csusage-adapter-zcode = { path = "adapters/zcode", version = "0.0.2" }
+csusage-cli = { path = "crates/ccusage-cli", version = "0.0.2" }
+csusage-cli-parser = { path = "crates/ccusage-cli-parser", version = "0.0.2" }
+csusage-config = { path = "crates/ccusage-config", version = "0.0.2" }
+csusage-core = { path = "crates/ccusage-core", version = "0.0.2" }
+csusage-terminal = { path = "crates/ccusage-terminal", version = "0.0.2" }
+csusage-test-support = { path = "crates/ccusage-test-support", version = "0.0.2" }
 assert_fs = "1.1.4"
 compact_str = "0.10.0"
 insta = { version = "1.48.0", features = ["json"] }
@@ -54,10 +57,10 @@ jiff = { version = "0.2.35", default-features = false, features = [
 ] }
 memchr = "2.8.3"
 # Inflate-only consumer of the deflated pricing snapshots build.rs embeds; the
-# compression side is a build-dependency of ccusage-core.
+# compression side is a build-dependency of csusage-core.
 miniz_oxide = { version = "0.9.1", default-features = false, features = ["with-alloc"] }
 mimalloc = "0.1.52"
-minreq = { version = "3.0.0", default-features = false, features = ["https-rustls"] }
+minreq = { version = "3.0.0", default-features = false, features = ["https-rustls", "proxy"] }
 rustc-hash = "2.1.3"
 schemars = "0.8"
 serde = { version = "1.0.229", features = ["derive"] }

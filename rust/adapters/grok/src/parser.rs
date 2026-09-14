@@ -13,8 +13,8 @@ use crate::{
     calculate_cost_for_usage_at, cli::CostMode, format_date_tz, format_rfc3339_millis,
     missing_pricing_model_for_candidates, total_usage_tokens,
 };
-use ccusage_adapter_common::jsonl;
-use ccusage_core::fast::LinePrefilter;
+use csusage_adapter_common::jsonl;
+use csusage_core::fast::LinePrefilter;
 
 use super::paths::GrokSessionFiles;
 
@@ -567,7 +567,7 @@ fn from_hex(byte: u8) -> Option<u8> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
 
     fn sample_turn_completed_line() -> String {
         r#"{"timestamp":1750000000,"method":"_x.ai/session/update","params":{"sessionId":"sess-1","update":{"sessionUpdate":"turn_completed","usage":{"inputTokens":100,"outputTokens":20,"cachedReadTokens":40,"reasoningTokens":10,"totalTokens":120,"modelUsage":{"grok-4.5-build":{"inputTokens":100,"outputTokens":20,"cachedReadTokens":40,"reasoningTokens":10,"totalTokens":120}}}},"_meta":{"eventId":"evt-1"}}}"#.to_string()

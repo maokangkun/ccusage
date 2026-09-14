@@ -63,7 +63,7 @@ mod tests {
     use std::sync::Mutex;
 
     use super::*;
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
 
     static OPENCLAW_DIR_LOCK: Mutex<()> = Mutex::new(());
 
@@ -123,7 +123,7 @@ mod tests {
         };
         shared.pricing_overrides.insert(
             "[openclaw] gpt-5.2".to_string(),
-            ccusage_cli::PricingOverride {
+            csusage_cli::PricingOverride {
                 input_cost_per_token: Some(1e-6),
                 output_cost_per_token: Some(2e-6),
                 ..Default::default()

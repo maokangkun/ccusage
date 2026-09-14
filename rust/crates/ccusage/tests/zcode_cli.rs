@@ -1,4 +1,4 @@
-use ccusage_test_support::{Fixture, zcode::create_fixture};
+use csusage_test_support::{Fixture, zcode::create_fixture};
 
 #[test]
 fn zcode_cli_tables_snapshot_production_stdout_and_stderr() {
@@ -7,7 +7,7 @@ fn zcode_cli_tables_snapshot_production_stdout_and_stderr() {
     create_fixture(fixture.path("zcode/cli/db/db.sqlite"));
 
     for kind in ["daily", "monthly", "session"] {
-        let output = std::process::Command::new(env!("CARGO_BIN_EXE_ccusage"))
+        let output = std::process::Command::new(env!("CARGO_BIN_EXE_csusage"))
             .env_clear()
             .env("HOME", fixture.path("home"))
             .env("USERPROFILE", fixture.path("userprofile"))

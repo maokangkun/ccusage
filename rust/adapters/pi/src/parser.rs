@@ -13,7 +13,7 @@ use crate::{
     apply_total_token_fallback, calculate_cost_for_usage_at, calculate_cost_from_pricing,
     cli::CostMode, fast::LinePrefilter, format_date_tz, missing_pricing_model_for_usage,
 };
-use ccusage_adapter_common::jsonl;
+use csusage_adapter_common::jsonl;
 
 /// A single parsed pi session record. Only the fields ccusage consumes are
 /// declared; serde skips everything else.
@@ -711,7 +711,7 @@ pub(crate) fn entry_id_for_store(store_name: &str, entry: &LoadedEntry) -> Strin
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
     use std::path::Path;
 
     fn pricing_for_cost_tests() -> PricingMap {

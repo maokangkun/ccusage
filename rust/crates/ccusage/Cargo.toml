@@ -1,9 +1,11 @@
 [package]
-name = "ccusage"
-version.workspace = true
+name = "csusage"
+version = "0.2.2"
 edition.workspace = true
 build = "build.rs"
 publish.workspace = true
+license.workspace = true
+description.workspace = true
 
 [[bin]]
 name = "csusage"
@@ -12,34 +14,34 @@ path = "src/main.rs"
 [features]
 # Enabled by the Windows release build, which cannot get the pricing snapshot
 # from the pinned Nix input the way every other platform does.
-fetch-litellm-pricing = ["ccusage-core/fetch-litellm-pricing"]
+fetch-litellm-pricing = ["csusage-core/fetch-litellm-pricing"]
 
 [dependencies]
-ccusage-adapter-all.workspace = true
-ccusage-adapter-amp.workspace = true
-ccusage-adapter-antigravity.workspace = true
-ccusage-adapter-claude.workspace = true
-ccusage-adapter-claude-science.workspace = true
-ccusage-adapter-codebuff.workspace = true
-ccusage-adapter-codex.workspace = true
-ccusage-adapter-common.workspace = true
-ccusage-adapter-copilot.workspace = true
-ccusage-adapter-droid.workspace = true
-ccusage-adapter-gemini.workspace = true
-ccusage-adapter-goose.workspace = true
-ccusage-adapter-grok.workspace = true
-ccusage-adapter-hermes.workspace = true
-ccusage-adapter-kilo.workspace = true
-ccusage-adapter-kimi.workspace = true
-ccusage-adapter-openclaw.workspace = true
-ccusage-adapter-opencode.workspace = true
-ccusage-adapter-pi.workspace = true
-ccusage-adapter-qwen.workspace = true
-ccusage-adapter-zcode.workspace = true
-ccusage-cli-parser.workspace = true
-ccusage-cli.workspace = true
-ccusage-config.workspace = true
-ccusage-core.workspace = true
+csusage-adapter-all.workspace = true
+csusage-adapter-amp.workspace = true
+csusage-adapter-antigravity.workspace = true
+csusage-adapter-claude.workspace = true
+csusage-adapter-claude-science.workspace = true
+csusage-adapter-codebuff.workspace = true
+csusage-adapter-codex.workspace = true
+csusage-adapter-common.workspace = true
+csusage-adapter-copilot.workspace = true
+csusage-adapter-droid.workspace = true
+csusage-adapter-gemini.workspace = true
+csusage-adapter-goose.workspace = true
+csusage-adapter-grok.workspace = true
+csusage-adapter-hermes.workspace = true
+csusage-adapter-kilo.workspace = true
+csusage-adapter-kimi.workspace = true
+csusage-adapter-openclaw.workspace = true
+csusage-adapter-opencode.workspace = true
+csusage-adapter-pi.workspace = true
+csusage-adapter-qwen.workspace = true
+csusage-adapter-zcode.workspace = true
+csusage-cli-parser.workspace = true
+csusage-cli.workspace = true
+csusage-config.workspace = true
+csusage-core.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 ureq.workspace = true
@@ -48,7 +50,7 @@ ureq.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
-ccusage-test-support.workspace = true
+csusage-test-support.workspace = true
 insta.workspace = true
 sqlite.workspace = true
 

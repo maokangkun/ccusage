@@ -1005,7 +1005,7 @@ mod tests {
         load_entries, load_entries_from_directory, load_entries_from_directory_for_report,
     };
     use crate::cli::{AgentReportKind, CostMode, SharedArgs};
-    use ccusage_test_support::{EnvVarsGuard, fs_fixture};
+    use csusage_test_support::{EnvVarsGuard, fs_fixture};
 
     // Mirrors the real OpenCode schema, where `time_created` repeats the
     // payload's `time.created`, so tests exercise the range push-down.
@@ -1812,7 +1812,7 @@ mod tests {
         // sharing ids with each other and with the DB, so the file pass has to
         // dedup. Parallel reads must not change which duplicate survives or the
         // final ordering compared to the single-threaded read.
-        let fixture = ccusage_test_support::Fixture::new();
+        let fixture = csusage_test_support::Fixture::new();
         for session in 0..4 {
             for message in 0..15 {
                 let id = format!("msg-{session}-{message}");

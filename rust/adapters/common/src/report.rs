@@ -2,8 +2,8 @@ use std::io::IsTerminal;
 
 use serde_json::Value;
 
-use ccusage_core::cli::{AgentReportKind, SharedArgs};
-use ccusage_core::{
+use csusage_core::cli::{AgentReportKind, SharedArgs};
+use csusage_core::{
     Align, Color, Result, SimpleTable, USAGE_COMPACT_WIDTH_THRESHOLD, UsageSummary, color,
     first_column, format_currency, format_models_multiline, format_number, json_value_u64,
     print_box_title, should_use_compact_layout, terminal_style, terminal_width, totals_json,

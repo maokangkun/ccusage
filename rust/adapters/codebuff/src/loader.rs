@@ -100,7 +100,7 @@ mod tests {
     use crate::{
         TokenUsageRaw, UsageEntry, UsageMessage, cli::AgentReportKind, parse_ts_timestamp,
     };
-    use ccusage_test_support::{EnvVarGuard, fs_fixture};
+    use csusage_test_support::{EnvVarGuard, fs_fixture};
 
     #[test]
     fn loads_assistant_usage_from_chat_messages() {

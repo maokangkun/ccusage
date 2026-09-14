@@ -109,7 +109,7 @@ mod tests {
     use std::path::Path;
 
     use super::*;
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
 
     fn create_state_db(path: &Path) {
         let db = sqlite::open(path).unwrap();

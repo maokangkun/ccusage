@@ -314,7 +314,7 @@ fn normalize_path(path: &Path) -> PathBuf {
 mod tests {
     use super::*;
     use crate::cli::{CostMode, SharedArgs};
-    use ccusage_test_support::Fixture;
+    use csusage_test_support::Fixture;
     use serde_json::json;
     use std::path::Path;
 

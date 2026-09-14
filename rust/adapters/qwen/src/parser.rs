@@ -9,7 +9,7 @@ use std::{
 use jiff::tz::TimeZone as JiffTimeZone;
 use serde::Deserialize;
 
-use ccusage_adapter_common::jsonl;
+use csusage_adapter_common::jsonl;
 
 use super::paths;
 use crate::{

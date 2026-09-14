@@ -105,7 +105,17 @@ fn download_pricing_json() -> std::io::Result<String> {
 
 #[cfg(feature = "fetch-litellm-pricing")]
 fn litellm_pricing_url() -> std::io::Result<String> {
-    let flake_lock = fs::read_to_string(FLAKE_LOCK_JSON)?;
+    // flake.lock is absent when building from a crates.io tarball; fall back
+    // to the pinned revision it resolved to when the crate was published.
+    let flake_lock = match fs::read_to_string(FLAKE_LOCK_JSON) {
+        Ok(flake_lock) => flake_lock,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            return Ok(format!(
+                "https://raw.githubusercontent.com/BerriAI/litellm/8a4fae0e174799ce2d3858a55473be0d6247a2a4/{LITELLM_PRICING_JSON}"
+            ));
+        }
+        Err(error) => return Err(error),
+    };
     let Value::Object(root) = serde_json::from_str::<Value>(&flake_lock)
         .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error.to_string()))?
     else {

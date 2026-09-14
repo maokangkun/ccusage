@@ -60,7 +60,7 @@ fn sibling_summary(updates: &Path) -> Option<PathBuf> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ccusage_test_support::{EnvVarsGuard, fs_fixture};
+    use csusage_test_support::{EnvVarsGuard, fs_fixture};
     use std::ffi::OsString;
 
     #[test]

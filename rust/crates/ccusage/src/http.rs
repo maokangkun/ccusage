@@ -6,7 +6,7 @@ use std::{
     time::Duration,
 };
 
-use ccusage_core::pricing::PricingEndpoint;
+use csusage_core::pricing::PricingEndpoint;
 
 const PRICING_FETCH_TIMEOUT_SECONDS: u64 = 10;
 const PRICING_FETCH_MAX_BYTES: u64 = 64 * 1024 * 1024;
@@ -17,7 +17,7 @@ const CACHE_FILE_MAX_BYTES: u64 = PRICING_FETCH_MAX_BYTES + CACHE_ETAG_MAX_BYTES
 ///
 /// This lives in the binary so that `ureq` and its TLS stack are not dependencies
 /// of `ccusage-core`, which every adapter builds against; `main` installs it
-/// through `ccusage_core::pricing::set_json_fetcher`.
+/// through `csusage_core::pricing::set_json_fetcher`.
 ///
 /// Each response body is kept on disk next to its ETag, and later fetches
 /// revalidate with `If-None-Match`. A cached body is used only after the server
@@ -37,7 +37,7 @@ pub(crate) fn fetch_json(url: &str) -> io::Result<String> {
 fn default_cache_dir() -> Option<PathBuf> {
     cache_dir_under(
         std::env::var_os("XDG_CACHE_HOME").map(PathBuf::from),
-        ccusage_core::home::home_dir(),
+        csusage_core::home::home_dir(),
     )
 }
 
@@ -262,7 +262,7 @@ mod tests {
         CacheEntry, PRICING_FETCH_MAX_BYTES, PricingEndpoint, cache_dir_under, cache_file_stem,
         fetch_json_with_cache_dir, read_bounded_body,
     };
-    use ccusage_test_support::Fixture;
+    use csusage_test_support::Fixture;
     use std::{
         fs,
         io::{self, Cursor, Read as _, Write as _},

@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use ccusage_test_support::{Fixture, fs_fixture};
+use csusage_test_support::{Fixture, fs_fixture};
 
 const SINCE: &str = "20260101";
 const UNTIL: &str = "20260228";
@@ -81,7 +81,7 @@ fn copilot_fixture() -> Fixture {
 }
 
 fn run_cli<const N: usize>(fixture: &Fixture, args: [&str; N]) -> String {
-    let output = Command::new(env!("CARGO_BIN_EXE_ccusage"))
+    let output = Command::new(env!("CARGO_BIN_EXE_csusage"))
         .args(args)
         .args(["--offline", "--no-color", "--timezone", "UTC"])
         .args(["--since", SINCE, "--until", UNTIL])

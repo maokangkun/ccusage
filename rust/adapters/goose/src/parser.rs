@@ -7,7 +7,7 @@ use crate::{
     LoadedEntry, PricingMap, TokenUsageRaw, UsageEntry, UsageMessage, calculate_cost_for_usage_at,
     cli::CostMode, format_date_tz, missing_pricing_model_for_candidates,
 };
-use ccusage_adapter_common::jsonl;
+use csusage_adapter_common::jsonl;
 
 /// Goose stores the per-session model selection as a JSON blob in the
 /// `model_config_json` column. Only the human-readable model name is consumed.

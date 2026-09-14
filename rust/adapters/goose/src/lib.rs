@@ -1,5 +1,5 @@
-use ccusage_adapter_common::{filter_loaded_entries_by_date, read_files_parallel};
-use ccusage_core::*;
+use csusage_adapter_common::{filter_loaded_entries_by_date, read_files_parallel};
+use csusage_core::*;
 
 mod loader;
 mod parser;
@@ -32,6 +32,6 @@ pub fn run(args: AgentCommandArgs) -> Result<()> {
             shared.no_cost,
         );
     }
-    ccusage_adapter_common::print_table_for_agent("Goose", args.kind, &rows, &shared)?;
+    csusage_adapter_common::print_table_for_agent("Goose", args.kind, &rows, &shared)?;
     Ok(())
 }

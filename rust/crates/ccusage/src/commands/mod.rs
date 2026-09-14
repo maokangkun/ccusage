@@ -6,7 +6,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use ccusage_adapter_common::filter_loaded_entries_by_date;
+use csusage_adapter_common::filter_loaded_entries_by_date;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -840,8 +840,8 @@ struct HookContext {
 mod tests {
     use std::ffi::OsString;
 
-    use ccusage_config::ConfigContext;
-    use ccusage_test_support::{EnvVarGuard, fs_fixture};
+    use csusage_config::ConfigContext;
+    use csusage_test_support::{EnvVarGuard, fs_fixture};
 
     use super::*;
     use crate::cli::{Cli, Command, CostMode};
@@ -1042,7 +1042,7 @@ mod tests {
         let mut shared = SharedArgs::default();
         shared.pricing_overrides.insert(
             "test-model-context-limit".to_string(),
-            ccusage_cli::PricingOverride {
+            csusage_cli::PricingOverride {
                 max_input_tokens: Some(1_500_000),
                 ..Default::default()
             },
@@ -1084,7 +1084,7 @@ mod tests {
         };
         shared.pricing_overrides.insert(
             "statusline-model".to_string(),
-            ccusage_cli::PricingOverride {
+            csusage_cli::PricingOverride {
                 input_cost_per_token: Some(1e-6),
                 ..Default::default()
             },

@@ -910,8 +910,8 @@ pub(super) fn aggregate_rows(rows: Vec<AllRow>, kind: AgentReportKind) -> Vec<Al
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ccusage_cli::NamedPiStore;
-    use ccusage_test_support::{EnvVarGuard, fs_fixture};
+    use csusage_cli::NamedPiStore;
+    use csusage_test_support::{EnvVarGuard, fs_fixture};
 
     fn usage_summary(date: &str, input_tokens: u64) -> UsageSummary {
         UsageSummary {

@@ -2,32 +2,32 @@ mod loader;
 mod report;
 mod types;
 
-use ccusage_adapter_codex::CodexGroup;
+use csusage_adapter_codex::CodexGroup;
 #[cfg(test)]
-use ccusage_adapter_codex::CodexModelUsage;
-use ccusage_adapter_common::filter_loaded_entries_by_date;
-use ccusage_core::*;
+use csusage_adapter_codex::CodexModelUsage;
+use csusage_adapter_common::filter_loaded_entries_by_date;
+use csusage_core::*;
 
 mod adapter {
-    pub use ccusage_adapter_amp as amp;
-    pub use ccusage_adapter_antigravity as antigravity;
-    pub use ccusage_adapter_claude as claude;
-    pub use ccusage_adapter_claude_science as claude_science;
-    pub use ccusage_adapter_codebuff as codebuff;
-    pub use ccusage_adapter_codex as codex;
-    pub use ccusage_adapter_copilot as copilot;
-    pub use ccusage_adapter_droid as droid;
-    pub use ccusage_adapter_gemini as gemini;
-    pub use ccusage_adapter_goose as goose;
-    pub use ccusage_adapter_grok as grok;
-    pub use ccusage_adapter_hermes as hermes;
-    pub use ccusage_adapter_kilo as kilo;
-    pub use ccusage_adapter_kimi as kimi;
-    pub use ccusage_adapter_openclaw as openclaw;
-    pub use ccusage_adapter_opencode as opencode;
-    pub use ccusage_adapter_pi as pi;
-    pub use ccusage_adapter_qwen as qwen;
-    pub use ccusage_adapter_zcode as zcode;
+    pub use csusage_adapter_amp as amp;
+    pub use csusage_adapter_antigravity as antigravity;
+    pub use csusage_adapter_claude as claude;
+    pub use csusage_adapter_claude_science as claude_science;
+    pub use csusage_adapter_codebuff as codebuff;
+    pub use csusage_adapter_codex as codex;
+    pub use csusage_adapter_copilot as copilot;
+    pub use csusage_adapter_droid as droid;
+    pub use csusage_adapter_gemini as gemini;
+    pub use csusage_adapter_goose as goose;
+    pub use csusage_adapter_grok as grok;
+    pub use csusage_adapter_hermes as hermes;
+    pub use csusage_adapter_kilo as kilo;
+    pub use csusage_adapter_kimi as kimi;
+    pub use csusage_adapter_openclaw as openclaw;
+    pub use csusage_adapter_opencode as opencode;
+    pub use csusage_adapter_pi as pi;
+    pub use csusage_adapter_qwen as qwen;
+    pub use csusage_adapter_zcode as zcode;
 }
 
 use crate::{

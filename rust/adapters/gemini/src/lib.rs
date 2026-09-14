@@ -1,7 +1,7 @@
-use ccusage_adapter_common::{
+use csusage_adapter_common::{
     collect_files_with_extension, filter_loaded_entries_by_date, read_files_parallel,
 };
-use ccusage_core::*;
+use csusage_core::*;
 
 mod loader;
 mod parser;
@@ -19,14 +19,14 @@ pub use report::summarize_entries;
 
 #[cfg(test)]
 struct GeminiDataDirEnvGuard {
-    _guard: ccusage_test_support::EnvVarGuard,
+    _guard: csusage_test_support::EnvVarGuard,
 }
 
 #[cfg(test)]
 impl GeminiDataDirEnvGuard {
     fn set(path: &std::path::Path) -> Self {
         Self {
-            _guard: ccusage_test_support::EnvVarGuard::set(paths::GEMINI_DATA_DIR_ENV, path),
+            _guard: csusage_test_support::EnvVarGuard::set(paths::GEMINI_DATA_DIR_ENV, path),
         }
     }
 }
@@ -42,7 +42,7 @@ pub fn run(args: AgentCommandArgs) -> Result<()> {
     filter_loaded_entries_by_date(&mut entries, &shared);
     let mut rows = summarize_entries(&entries, args.kind)?;
     sort_summaries(&mut rows, &shared.order, |row| {
-        ccusage_core::summary_period(row)
+        csusage_core::summary_period(row)
     });
     if wants_json(&shared) {
         return print_json_or_jq(
@@ -53,7 +53,7 @@ pub fn run(args: AgentCommandArgs) -> Result<()> {
     }
     print_usage_table(
         "Gemini CLI Token Usage Report",
-        ccusage_core::first_column(args.kind),
+        csusage_core::first_column(args.kind),
         &rows,
         &shared,
         false,

@@ -53,7 +53,7 @@ fn load_entries_inner(shared: &SharedArgs, pricing: &PricingMap) -> Result<Vec<L
 mod tests {
     use super::super::paths::KIMI_DATA_DIR_ENV;
     use super::*;
-    use ccusage_test_support::{EnvVarGuard, fs_fixture};
+    use csusage_test_support::{EnvVarGuard, fs_fixture};
 
     #[test]
     fn loads_status_update_token_usage_from_wire_files() {

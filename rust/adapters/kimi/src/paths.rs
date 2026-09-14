@@ -76,7 +76,7 @@ fn is_kimi_wire_file(sessions_path: &Path, file_path: &Path) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ccusage_test_support::{EnvVarGuard, fs_fixture};
+    use csusage_test_support::{EnvVarGuard, fs_fixture};
 
     #[test]
     fn discovers_wire_jsonl_files_under_sessions_group_session() {

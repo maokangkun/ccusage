@@ -252,7 +252,7 @@ pub(super) fn set_file_modified(path: &Path, timestamp: crate::TimestampMs) {
 mod tests {
     use super::*;
 
-    use ccusage_test_support::Fixture;
+    use csusage_test_support::Fixture;
 
     #[test]
     fn includes_archived_sessions_next_to_sessions() {

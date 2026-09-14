@@ -4,7 +4,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use ccusage_cli::PricingOverride;
+use csusage_cli::PricingOverride;
 
 use serde::Deserialize;
 use serde_json::Value;
@@ -2610,7 +2610,7 @@ mod tests {
         build_time_models_dev_json, build_time_pricing_json, embedded_models_dev_pricing,
         long_context_split_threshold, model_without_date_suffix,
     };
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
     use std::sync::atomic::{AtomicUsize, Ordering};
 
     #[test]
@@ -2833,7 +2833,7 @@ mod tests {
         let pricing = PricingMap::load_with_overrides(
             true,
             false,
-            std::iter::empty::<(&String, &ccusage_cli::PricingOverride)>(),
+            std::iter::empty::<(&String, &csusage_cli::PricingOverride)>(),
         );
         let flash = pricing
             .find_at("deepseek-v4-flash", timestamp("2026-08-17T01:00:00Z"))
@@ -2847,7 +2847,7 @@ mod tests {
     #[test]
     fn user_deepseek_v4_overrides_remain_authoritative() {
         let model = "deepseek-v4-flash".to_string();
-        let override_value = ccusage_cli::PricingOverride {
+        let override_value = csusage_cli::PricingOverride {
             input_cost_per_token: Some(9e-6),
             output_cost_per_token: Some(10e-6),
             cache_creation_input_token_cost: Some(7e-6),
@@ -2868,7 +2868,7 @@ mod tests {
     #[test]
     fn partial_deepseek_v4_override_keeps_schedule_for_unspecified_fields() {
         let model = "deepseek-v4-flash".to_string();
-        let override_value = ccusage_cli::PricingOverride {
+        let override_value = csusage_cli::PricingOverride {
             input_cost_per_token: Some(9e-6),
             ..Default::default()
         };
@@ -3375,7 +3375,7 @@ mod tests {
 
     #[test]
     fn keeps_models_dev_fallback_disabled_for_embedded_and_offline_pricing() {
-        use ccusage_cli::PricingOverride;
+        use csusage_cli::PricingOverride;
         assert!(!PricingMap::load_embedded().models_dev_fallback_enabled());
         assert!(
             !PricingMap::load_with_overrides(
@@ -4244,7 +4244,7 @@ mod tests {
 
     #[test]
     fn offline_resolves_models_only_in_embedded_models_dev() {
-        use ccusage_cli::PricingOverride;
+        use csusage_cli::PricingOverride;
         let offline = PricingMap::load_with_overrides(
             true,
             false,
@@ -4268,7 +4268,7 @@ mod tests {
 
     #[test]
     fn offline_prices_new_anthropic_model_from_embedded_models_dev() {
-        use ccusage_cli::PricingOverride;
+        use csusage_cli::PricingOverride;
         assert!(
             embedded_models_dev_pricing()
                 .find_entry("claude-fable-5-1", Fuzzy::Allowed)
@@ -5015,7 +5015,7 @@ mod tests {
 
     mod overrides {
         use super::super::{Pricing, PricingMap};
-        use ccusage_cli::PricingOverride;
+        use csusage_cli::PricingOverride;
         use std::collections::BTreeMap;
 
         fn build_overrides<F: FnOnce(&mut PricingOverride)>(

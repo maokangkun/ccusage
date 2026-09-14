@@ -2,10 +2,10 @@ mod last_window;
 
 use std::{env, ffi::OsString, process};
 
-pub(crate) use ccusage_cli::*;
-pub(crate) use ccusage_cli_parser::Cli;
+pub(crate) use csusage_cli::*;
+pub(crate) use csusage_cli_parser::Cli;
 
-use ccusage_config::ConfigContext;
+use csusage_config::ConfigContext;
 
 use crate::DEFAULT_SESSION_DURATION_HOURS;
 

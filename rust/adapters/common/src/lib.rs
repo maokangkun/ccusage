@@ -4,7 +4,7 @@ use std::{
     thread,
 };
 
-use ccusage_core::{LoadedEntry, cli::SharedArgs, date_within_range};
+use csusage_core::{LoadedEntry, cli::SharedArgs, date_within_range};
 
 pub mod jsonl;
 pub mod report;
@@ -128,7 +128,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::{chunk_file_indexes_by_size, read_files_parallel};
-    use ccusage_test_support::Fixture;
+    use csusage_test_support::Fixture;
 
     #[test]
     fn preserves_file_order_and_matches_single_thread() {

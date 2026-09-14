@@ -1,5 +1,5 @@
-use ccusage_adapter_common::{chunk_file_indexes_by_size, collect_usage_files};
-use ccusage_core::*;
+use csusage_adapter_common::{chunk_file_indexes_by_size, collect_usage_files};
+use csusage_core::*;
 
 mod aggregate;
 mod loader;
@@ -70,7 +70,7 @@ mod tests {
     use super::*;
     use crate::cli::SharedArgs;
     use crate::{CodexModelUsage, CodexServiceTier, CodexTokenUsageEvent, CodexUsageBucket};
-    use ccusage_test_support::fs_fixture;
+    use csusage_test_support::fs_fixture;
     use serde_json::json;
 
     #[test]

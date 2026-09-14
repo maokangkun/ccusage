@@ -6,7 +6,7 @@ use std::{
 
 use serde_json::{Map, Value};
 
-use ccusage_cli::{
+use csusage_cli::{
     BlocksArgs, CodexSpeed, CostMode, CostSource, DATE_BOUND_FORMATS, DailyArgs, NamedPiStore,
     PricingOverride, SharedArgs, SortOrder, StatuslineArgs, VisualBurnRate, WeekDay, WeeklyArgs,
     normalize_date_bound,
@@ -217,7 +217,7 @@ fn validate_named_pi_store_name(name: &str) -> std::result::Result<(), NamedPiSt
 
 fn reserved_named_pi_store_names() -> Vec<&'static str> {
     std::iter::once("all")
-        .chain(ccusage_core::BUILT_IN_AGENT_NAMES.iter().copied())
+        .chain(csusage_core::BUILT_IN_AGENT_NAMES.iter().copied())
         .collect()
 }
 
@@ -295,7 +295,7 @@ fn claude_config_dirs() -> Vec<PathBuf> {
             .map(PathBuf::from)
             .collect();
     }
-    ccusage_core::home::home_dir()
+    csusage_core::home::home_dir()
         .map(|home| vec![home.join(".config").join("claude"), home.join(".claude")])
         .unwrap_or_default()
 }
@@ -411,7 +411,7 @@ fn option_takes_value(arg: &str) -> bool {
 }
 
 fn is_agent_command(command: &str) -> bool {
-    ccusage_core::BUILT_IN_AGENT_NAMES.contains(&command)
+    csusage_core::BUILT_IN_AGENT_NAMES.contains(&command)
 }
 
 fn is_report_command(command: &str) -> bool {
@@ -546,7 +546,7 @@ fn apply_config_to_agent_args(
     }
 }
 
-impl ccusage_cli::CliConfig for ConfigContext {
+impl csusage_cli::CliConfig for ConfigContext {
     fn config_error(&self) -> Option<&str> {
         self.active_pi_store_error()
             .or(self.date_bound_error.as_deref())
@@ -783,12 +783,12 @@ mod tests {
     use serde_json::{Value, json};
 
     use super::*;
-    use ccusage_cli::{
+    use csusage_cli::{
         BlocksArgs, CliConfig, CodexSpeed, CostMode, SortOrder, StatuslineArgs, VisualBurnRate,
         WeekDay, WeeklyArgs,
     };
-    use ccusage_core::DEFAULT_SESSION_DURATION_HOURS;
-    use ccusage_test_support::fs_fixture;
+    use csusage_core::DEFAULT_SESSION_DURATION_HOURS;
+    use csusage_test_support::fs_fixture;
 
     #[test]
     fn applies_schema_backed_shared_options() {
@@ -913,7 +913,7 @@ mod tests {
         assert!(!statusline.offline);
         assert!(statusline.no_offline);
         assert_eq!(statusline.visual_burn_rate, VisualBurnRate::EmojiText);
-        assert_eq!(statusline.cost_source, ccusage_cli::CostSource::Both);
+        assert_eq!(statusline.cost_source, csusage_cli::CostSource::Both);
         assert!(!statusline.cache);
         assert!(statusline.no_cache);
         assert_eq!(statusline.refresh_interval, 3);
@@ -1060,7 +1060,7 @@ mod tests {
     #[test]
     fn merge_pricing_overrides_field_level_preserves_parent_fields() {
         use crate::config_schema::ConfigPricingOverride;
-        use ccusage_cli::PricingOverride;
+        use csusage_cli::PricingOverride;
 
         let mut current = BTreeMap::new();
         current.insert(
@@ -1095,7 +1095,7 @@ mod tests {
     #[test]
     fn merge_pricing_overrides_child_overrides_parent_field() {
         use crate::config_schema::ConfigPricingOverride;
-        use ccusage_cli::PricingOverride;
+        use csusage_cli::PricingOverride;
 
         let mut current = BTreeMap::new();
         current.insert(
@@ -1231,7 +1231,7 @@ mod tests {
             .into_iter()
             .collect::<BTreeSet<_>>();
         let expected = std::iter::once("all")
-            .chain(ccusage_core::BUILT_IN_AGENT_NAMES.iter().copied())
+            .chain(csusage_core::BUILT_IN_AGENT_NAMES.iter().copied())
             .collect::<BTreeSet<_>>();
 
         assert_eq!(reserved, expected);
