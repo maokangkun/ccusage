@@ -32,7 +32,7 @@ jobs:
       - name: Ensure target is installed
         run: rustup target add ${{ matrix.target }}
       - name: Build
-        run: cargo build --release --target ${{ matrix.target }} --features ccusage-core/fetch-litellm-pricing
+        run: cargo build --release --target ${{ matrix.target }} --features csusage-core/fetch-litellm-pricing
         env:
           CMAKE_OSX_ARCHITECTURES: ${{ matrix.cmake_arch }}
         working-directory: rust
