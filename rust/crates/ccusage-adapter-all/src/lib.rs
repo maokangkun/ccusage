@@ -25,6 +25,7 @@ mod adapter {
     pub use csusage_adapter_kimi as kimi;
     pub use csusage_adapter_openclaw as openclaw;
     pub use csusage_adapter_opencode as opencode;
+    pub use csusage_adapter_openhands as openhands;
     pub use csusage_adapter_pi as pi;
     pub use csusage_adapter_qwen as qwen;
     pub use csusage_adapter_zcode as zcode;

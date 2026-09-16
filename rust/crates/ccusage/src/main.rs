@@ -11,10 +11,10 @@ pub(crate) use blocks::{
     block_json, calculate_burn_rate, filter_blocks_by_date, format_remaining_time,
     identify_session_blocks, print_active_block_detail, print_blocks_table, sort_blocks,
 };
+use cli::{AgentCommandArgs, AgentReportKind, Command};
 #[cfg(test)]
 pub(crate) use csusage_adapter_common::chunk_file_indexes_by_size;
 pub(crate) use csusage_core::*;
-use cli::{AgentCommandArgs, AgentReportKind, Command};
 #[cfg(test)]
 use pricing::PricingMap;
 
@@ -51,6 +51,7 @@ fn main() -> Result<()> {
         Some(Command::Grok(args)) => adapter::grok::run(args),
         Some(Command::ZCode(args)) => adapter::zcode::run(args),
         Some(Command::ClaudeScience(args)) => adapter::claude_science::run(args),
+        Some(Command::OpenHands(args)) => adapter::openhands::run(args),
         None => {
             let args = AgentCommandArgs {
                 shared: cli.shared,
@@ -89,7 +90,7 @@ mod tests {
 
     #[test]
     fn agent_commands_are_exposed_by_independent_crates() {
-        let runs: [fn(AgentCommandArgs) -> Result<()>; 18] = [
+        let runs: [fn(AgentCommandArgs) -> Result<()>; 19] = [
             csusage_adapter_amp::run,
             csusage_adapter_antigravity::run,
             csusage_adapter_codebuff::run,
@@ -108,9 +109,10 @@ mod tests {
             csusage_adapter_qwen::run,
             csusage_adapter_zcode::run,
             csusage_adapter_claude_science::run,
+            csusage_adapter_openhands::run,
         ];
 
-        assert_eq!(runs.len(), 18);
+        assert_eq!(runs.len(), 19);
     }
 
     #[test]
@@ -125,14 +127,9 @@ mod tests {
 
     #[test]
     fn compiled_version_matches_release_package() {
-        let package =
-            serde_json::from_str::<serde_json::Value>(include_str!("../../../../package.json"))
-                .unwrap();
-
-        assert_eq!(
-            env!("CCUSAGE_VERSION"),
-            package["version"].as_str().unwrap()
-        );
+        // csusage versions itself via its own Cargo manifest, so the baked
+        // version must always track the crate version.
+        assert_eq!(env!("CCUSAGE_VERSION"), env!("CARGO_PKG_VERSION"));
     }
 
     #[test]

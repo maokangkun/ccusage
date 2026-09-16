@@ -20,7 +20,7 @@ use crate::{
 };
 use csusage_test_support::{
     EnvVarsGuard, claude_science::create_fixture as claude_science_create_fixture, fs_fixture,
-    zcode::create_fixture,
+    openhands::create_fixture as openhands_create_fixture, zcode::create_fixture,
 };
 
 fn test_agent_rows(agent: &'static str) -> AgentRows {
@@ -789,6 +789,55 @@ fn claude_science_fixture_reports_daily_monthly_session_json_and_table_snapshots
 }
 
 #[test]
+fn openhands_fixture_reports_daily_monthly_session_json_and_table_snapshots() {
+    let fixture = fs_fixture!({});
+    let _ = fixture.create_dir_all("openhands");
+    openhands_create_fixture(fixture.path("openhands"));
+    let _env = isolated_agent_env(
+        &fixture,
+        "OPENHANDS_DIR",
+        fixture.path("openhands").into_os_string(),
+    );
+    let shared = fixture_shared("20250101", "20270101");
+
+    let daily = load_rows(AgentReportKind::Daily, &shared).unwrap();
+    let monthly = load_rows(AgentReportKind::Monthly, &shared).unwrap();
+    let session = load_rows(AgentReportKind::Session, &shared).unwrap();
+
+    assert_eq!(daily.detected_agents, vec!["openhands"]);
+    assert_eq!(monthly.detected_agents, vec!["openhands"]);
+    assert_eq!(session.detected_agents, vec!["openhands"]);
+    // conv-1: default LLM's final snapshot (200/20) plus condenser (0/0);
+    // conv-2: one LLM (50/5).
+    assert_eq!(daily.rows[0].period, "2026-01-02");
+    assert_eq!(daily.rows[0].input_tokens, 200);
+    assert_eq!(daily.rows[0].output_tokens, 20);
+    assert_eq!(daily.rows[0].cache_read_tokens, 30);
+    assert_eq!(daily.rows[0].cache_creation_tokens, 10);
+    assert_eq!(daily.rows[1].period, "2026-01-03");
+    assert_eq!(daily.rows[1].input_tokens, 50);
+    assert_eq!(daily.rows[1].output_tokens, 5);
+    assert_eq!(session.rows[0].period, "conv-1");
+    assert_eq!(session.rows[0].input_tokens, 200);
+    assert_eq!(session.rows[1].period, "conv-2");
+    assert_eq!(session.rows[1].input_tokens, 50);
+
+    insta::assert_json_snapshot!(
+        "openhands_fixture_daily_json",
+        report_json(&daily.rows, AgentReportKind::Daily)
+    );
+    insta::assert_snapshot!(
+        "openhands_fixture_daily_table",
+        serde_json::to_string_pretty(&table_snapshot(
+            &daily.rows,
+            AgentReportKind::Daily,
+            &daily.detected_agents,
+        ))
+        .unwrap()
+    );
+}
+
+#[test]
 fn unified_report_omits_zcode_without_usage_database() {
     let fixture = fs_fixture!({});
     let _env = isolated_agent_env(
@@ -934,6 +983,7 @@ fn isolated_agent_env(
         "GROK_HOME",
         "ZCODE_HOME",
         "CLAUDE_SCIENCE_DB",
+        "OPENHANDS_DIR",
     ]
     .into_iter()
     .map(|key| (key, None::<OsString>))

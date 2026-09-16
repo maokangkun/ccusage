@@ -58,6 +58,7 @@ pub struct CcusageConfig {
     pub zcode: Option<ZCodeConfig>,
     /// Claude Science configuration.
     pub claude_science: Option<ClaudeScienceConfig>,
+    pub openhands: Option<OpenHandsConfig>,
 }
 
 #[derive(Debug, Default, Deserialize, JsonSchema)]
@@ -352,6 +353,13 @@ pub struct ZCodeConfig {
 #[derive(Debug, Default, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct ClaudeScienceConfig {
+    pub defaults: Option<SharedOptions>,
+    pub commands: Option<ZCodeCommandsConfig>,
+}
+
+#[derive(Debug, Default, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct OpenHandsConfig {
     pub defaults: Option<SharedOptions>,
     pub commands: Option<ZCodeCommandsConfig>,
 }
@@ -1215,6 +1223,7 @@ mod tests {
                 "kimi",
                 "opencode",
                 "openclaw",
+                "openhands",
                 "pi",
                 "qwen",
                 "zcode",

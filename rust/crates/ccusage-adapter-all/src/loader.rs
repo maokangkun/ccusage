@@ -12,7 +12,7 @@ use crate::{
     SessionAccumulator, UsageSummary,
     adapter::{
         amp, antigravity, claude, claude_science, codebuff, codex, copilot, droid, gemini, goose,
-        grok, hermes, kilo, kimi, openclaw, opencode, pi, qwen, zcode,
+        grok, hermes, kilo, kimi, openclaw, opencode, openhands, pi, qwen, zcode,
     },
     cli::{AgentReportKind, CodexSpeed, NamedPiStore, SharedArgs, WeekDay},
     filter_loaded_entries_by_date, json_float,
@@ -367,6 +367,21 @@ fn load_base_rows(
                     pricing,
                     claude_science::load_entries,
                     claude_science::summarize_entries,
+                )
+            }),
+        },
+        AgentLoadSpec {
+            index: 19,
+            agent: BUILT_IN_AGENT_NAMES[19],
+            progress_agent: crate::progress::UsageLoadAgent("OpenHands"),
+            load: Box::new(|| {
+                load_priced_summary_agent_rows(
+                    "openhands",
+                    load_kind,
+                    &loader_shared,
+                    pricing,
+                    openhands::load_entries,
+                    openhands::summarize_entries,
                 )
             }),
         },

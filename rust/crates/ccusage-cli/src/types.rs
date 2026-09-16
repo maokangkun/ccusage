@@ -29,6 +29,7 @@ pub enum Command {
     Grok(AgentCommandArgs),
     ZCode(AgentCommandArgs),
     ClaudeScience(AgentCommandArgs),
+    OpenHands(AgentCommandArgs),
 }
 
 #[derive(Clone, Debug, Default)]

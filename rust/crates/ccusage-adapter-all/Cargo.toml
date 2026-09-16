@@ -11,6 +11,7 @@ csusage-adapter-amp.workspace = true
 csusage-adapter-antigravity.workspace = true
 csusage-adapter-claude.workspace = true
 csusage-adapter-claude-science.workspace = true
+csusage-adapter-openhands.workspace = true
 csusage-adapter-codebuff.workspace = true
 csusage-adapter-codex.workspace = true
 csusage-adapter-common.workspace = true

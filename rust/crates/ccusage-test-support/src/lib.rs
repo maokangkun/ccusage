@@ -11,6 +11,7 @@ use assert_fs::{
 };
 
 pub mod claude_science;
+pub mod openhands;
 pub mod zcode;
 
 static ENV_LOCK: Mutex<()> = Mutex::new(());

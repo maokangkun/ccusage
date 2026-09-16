@@ -116,6 +116,10 @@
 			{
 				"name": "claude-science",
 				"description": "Show Claude Science usage commands"
+			},
+			{
+				"name": "openhands",
+				"description": "Show OpenHands usage commands"
 			}
 		]
 	},
@@ -897,6 +901,43 @@
 		{
 			"path": ["claude-science", "session"],
 			"description": "Show Claude Science usage grouped by session",
+			"usage": "ccusage claude-science session <OPTIONS>",
+			"options": "agent_options"
+		},
+		{
+			"path": ["openhands"],
+			"description": "Usage reports for OpenHands.",
+			"usage": "ccusage claude-science <COMMANDS>",
+			"commands": [
+				{
+					"name": "daily",
+					"description": "Show OpenHands usage grouped by date"
+				},
+				{
+					"name": "monthly",
+					"description": "Show OpenHands usage grouped by month"
+				},
+				{
+					"name": "session",
+					"description": "Show OpenHands usage grouped by session"
+				}
+			]
+		},
+		{
+			"path": ["openhands", "daily"],
+			"description": "Show OpenHands usage grouped by date",
+			"usage": "ccusage claude-science daily <OPTIONS>",
+			"options": "agent_period_options"
+		},
+		{
+			"path": ["openhands", "monthly"],
+			"description": "Show OpenHands usage grouped by month",
+			"usage": "ccusage claude-science monthly <OPTIONS>",
+			"options": "agent_period_options"
+		},
+		{
+			"path": ["openhands", "session"],
+			"description": "Show OpenHands usage grouped by session",
 			"usage": "ccusage claude-science session <OPTIONS>",
 			"options": "agent_options"
 		}

@@ -15,6 +15,7 @@ pub(crate) use csusage_adapter_kilo as kilo;
 pub(crate) use csusage_adapter_kimi as kimi;
 pub(crate) use csusage_adapter_openclaw as openclaw;
 pub(crate) use csusage_adapter_opencode as opencode;
+pub(crate) use csusage_adapter_openhands as openhands;
 pub(crate) use csusage_adapter_pi as pi;
 pub(crate) use csusage_adapter_qwen as qwen;
 pub(crate) use csusage_adapter_zcode as zcode;

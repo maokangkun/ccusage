@@ -36,6 +36,7 @@ let
     "antigravity"
     "claude"
     "claude-science"
+    "openhands"
     "codebuff"
     "codex"
     "copilot"

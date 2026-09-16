@@ -8,5 +8,6 @@ description.workspace = true
 
 [dependencies]
 assert_fs.workspace = true
+serde_json.workspace = true
 jiff.workspace = true
 sqlite.workspace = true
