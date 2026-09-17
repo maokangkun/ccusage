@@ -13,11 +13,12 @@ const INDEX_HTML: &str = include_str!("../../assets/web/index.html");
 
 /// Runs the web UI server until interrupted.
 pub(crate) fn run_web(args: WebArgs) -> Result<()> {
+    let host = args.host.clone();
     let port = args.port;
-    let listener = TcpListener::bind(("127.0.0.1", port)).map_err(|error| {
-        csusage_core::cli_error(format!("failed to bind 127.0.0.1:{port}: {error}"))
+    let listener = TcpListener::bind((host.as_str(), port)).map_err(|error| {
+        csusage_core::cli_error(format!("failed to bind {host}:{port}: {error}"))
     })?;
-    println!("csusage web UI listening on http://127.0.0.1:{port}");
+    println!("csusage web UI listening on http://{host}:{port}");
     println!("Press Ctrl+C to stop.");
     for stream in listener.incoming() {
         match stream {

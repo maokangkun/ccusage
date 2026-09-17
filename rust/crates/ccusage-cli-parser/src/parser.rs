@@ -213,7 +213,11 @@ fn parse_command(
             Ok(Command::Blocks(args))
         }
         "web" => {
-            let mut args = WebArgs { shared, port: 8080 };
+            let mut args = WebArgs {
+                shared,
+                host: "127.0.0.1".to_string(),
+                port: 8080,
+            };
             while parser.peek().is_some() {
                 if parse_shared_arg_for_command(parser, &mut args.shared)? {
                     continue;
@@ -224,6 +228,9 @@ fn parse_command(
                             .value_for("--port")?
                             .parse()
                             .map_err(|_| "Invalid value for --port".to_string())?
+                    }
+                    "-H" | "--host" => {
+                        args.host = parser.value_for("--host")?;
                     }
                     flag => return Err(format!("Unknown web option '{flag}'")),
                 }

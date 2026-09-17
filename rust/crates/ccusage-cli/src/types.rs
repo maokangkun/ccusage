@@ -156,6 +156,7 @@ pub struct BlocksArgs {
 #[derive(Clone)]
 pub struct WebArgs {
     pub shared: SharedArgs,
+    pub host: String,
     pub port: u16,
 }
 

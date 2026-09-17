@@ -464,6 +464,11 @@
    "default": "8080"
   },
   {
+   "flags": "-H, --host [host]",
+   "description": "Address to bind the web UI to",
+   "default": "127.0.0.1"
+  },
+  {
    "flags": "-z, --timezone <timezone>",
    "description": "Timezone for date grouping (IANA)"
   },
