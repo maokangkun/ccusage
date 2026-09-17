@@ -11,13 +11,15 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::pricing::PricingMap;
+mod web;
+
 use crate::{
     BucketKind, Color, Context, DEFAULT_RECENT_DAYS, DEFAULT_SESSION_DURATION_HOURS,
     MILLIS_PER_DAY, MILLIS_PER_MINUTE, Result, SessionAccumulator, TimestampMs, UsageSummary,
     block_json, calculate_burn_rate,
     cli::{
         BlocksArgs, CostSource, DailyArgs, SessionArgs, SharedArgs, SortOrder, StatuslineArgs,
-        VisualBurnRate, WeekDay, WeeklyArgs,
+        VisualBurnRate, WebArgs, WeekDay, WeeklyArgs,
     },
     color,
     fast::FxHashMap,
@@ -304,6 +306,10 @@ pub(crate) fn run_blocks(args: BlocksArgs) -> Result<()> {
     }
     print_blocks_table(&blocks, args.token_limit.as_deref(), max_tokens, &shared)?;
     Ok(())
+}
+
+pub(crate) fn run_web(args: WebArgs) -> Result<()> {
+    web::run_web(args)
 }
 
 pub(crate) fn run_statusline(args: StatuslineArgs) -> Result<()> {

@@ -190,6 +190,11 @@ fn command_snapshot(command: Option<Command>) -> Value {
             "config": args.config.as_ref().map(|path| path.to_string_lossy().to_string()),
             "debug": args.debug,
         }),
+        Some(Command::Web(args)) => json!({
+            "type": "web",
+            "shared": shared_snapshot(&args.shared),
+            "port": args.port,
+        }),
         Some(Command::Codex(args)) => agent_command_snapshot("codex", args),
         Some(Command::OpenCode(args)) => agent_command_snapshot("opencode", args),
         Some(Command::Amp(args)) => agent_command_snapshot("amp", args),

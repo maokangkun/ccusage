@@ -5,8 +5,8 @@ use crate::help::{print_help_and_exit, print_version_and_exit};
 use csusage_cli::{
     AgentCommandArgs, AgentReportKind, BlocksArgs, CliConfig, CodexSpeed, Command, CostMode,
     CostSource, DATE_BOUND_FORMATS, DailyArgs, OPENCODE_AGENT_REPORTS, STANDARD_AGENT_REPORTS,
-    SessionArgs, SharedArgs, SortOrder, StatuslineArgs, VisualBurnRate, WeekDay, WeeklyArgs,
-    normalize_date_bound,
+    SessionArgs, SharedArgs, SortOrder, StatuslineArgs, VisualBurnRate, WebArgs, WeekDay,
+    WeeklyArgs, normalize_date_bound,
 };
 
 use crate::Cli;
@@ -211,6 +211,24 @@ fn parse_command(
                 }
             }
             Ok(Command::Blocks(args))
+        }
+        "web" => {
+            let mut args = WebArgs { shared, port: 8080 };
+            while parser.peek().is_some() {
+                if parse_shared_arg_for_command(parser, &mut args.shared)? {
+                    continue;
+                }
+                match parser.next_flag()?.as_str() {
+                    "-p" | "--port" => {
+                        args.port = parser
+                            .value_for("--port")?
+                            .parse()
+                            .map_err(|_| "Invalid value for --port".to_string())?
+                    }
+                    flag => return Err(format!("Unknown web option '{flag}'")),
+                }
+            }
+            Ok(Command::Web(args))
         }
         "statusline" => {
             let mut args = StatuslineArgs::default();
@@ -783,6 +801,7 @@ fn is_command(arg: &str) -> bool {
             | "session"
             | "blocks"
             | "statusline"
+            | "web"
             | "claude"
             | "codex"
             | "opencode"
@@ -1073,6 +1092,7 @@ fn last_option_error(command: Option<&Command>, root_shared: &SharedArgs) -> Opt
         Some(Command::Weekly(args)) => (&args.shared, true),
         Some(Command::Session(args)) => (&args.shared, false),
         Some(Command::Blocks(args)) => (&args.shared, false),
+        Some(Command::Web(args)) => (&args.shared, false),
         Some(Command::Statusline(_)) => (root_shared, false),
         Some(
             Command::Codex(args)

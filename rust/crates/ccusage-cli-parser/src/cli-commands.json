@@ -42,6 +42,10 @@
 				"description": "Display compact status line for Claude Code hooks with hybrid time+file caching (Beta)"
 			},
 			{
+				"name": "web",
+				"description": "Serve a local web UI dashboard"
+			},
+			{
 				"name": "claude",
 				"description": "Show Claude Code usage commands"
 			},
@@ -159,6 +163,12 @@
 			"description": "Display compact status line for Claude Code hooks with hybrid time+file caching (Beta)",
 			"usage": "ccusage statusline <OPTIONS>",
 			"options": "statusline_options"
+		},
+		{
+			"path": ["web"],
+			"description": "Serve the local web UI usage dashboard",
+			"usage": "ccusage web <OPTIONS>",
+			"options": "web_options"
 		},
 		{
 			"path": ["claude"],

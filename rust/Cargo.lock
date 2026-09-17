@@ -262,6 +262,7 @@ dependencies = [
  "csusage-core",
  "csusage-test-support",
  "insta",
+ "jiff",
  "serde",
  "serde_json",
  "sqlite",

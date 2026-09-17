@@ -15,6 +15,7 @@ csusage-adapter-openhands.workspace = true
 csusage-adapter-codebuff.workspace = true
 csusage-adapter-codex.workspace = true
 csusage-adapter-common.workspace = true
+jiff.workspace = true
 csusage-adapter-copilot.workspace = true
 csusage-adapter-droid.workspace = true
 csusage-adapter-gemini.workspace = true

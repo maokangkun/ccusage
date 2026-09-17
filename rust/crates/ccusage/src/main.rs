@@ -33,6 +33,7 @@ fn main() -> Result<()> {
         Some(Command::Session(args)) => commands::run_session(args),
         Some(Command::Blocks(args)) => commands::run_blocks(args),
         Some(Command::Statusline(args)) => commands::run_statusline(args),
+        Some(Command::Web(args)) => commands::run_web(args),
         Some(Command::Codex(args)) => adapter::codex::run(args),
         Some(Command::OpenCode(args)) => adapter::opencode::run(args),
         Some(Command::Amp(args)) => adapter::amp::run(args),

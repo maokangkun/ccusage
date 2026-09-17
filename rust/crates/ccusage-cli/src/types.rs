@@ -11,6 +11,7 @@ pub enum Command {
     Session(SessionArgs),
     Blocks(BlocksArgs),
     Statusline(StatuslineArgs),
+    Web(WebArgs),
     Codex(AgentCommandArgs),
     OpenCode(AgentCommandArgs),
     Amp(AgentCommandArgs),
@@ -150,6 +151,12 @@ pub struct BlocksArgs {
     pub recent: bool,
     pub token_limit: Option<String>,
     pub session_length: f64,
+}
+
+#[derive(Clone)]
+pub struct WebArgs {
+    pub shared: SharedArgs,
+    pub port: u16,
 }
 
 #[derive(Clone)]

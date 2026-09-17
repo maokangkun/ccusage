@@ -1,3 +1,4 @@
+mod dashboard;
 mod loader;
 mod report;
 mod types;
@@ -36,6 +37,8 @@ use crate::{
     cli::{AgentCommandArgs, AgentReportKind},
     print_json_or_jq, wants_json,
 };
+
+pub use dashboard::load_dashboard;
 
 pub fn run(args: AgentCommandArgs) -> Result<()> {
     let kind = args.kind;
