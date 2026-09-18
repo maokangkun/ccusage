@@ -976,7 +976,7 @@ fn snapshots_cli_parse_error_guidance() {
 
 #[test]
 fn cargo_version_is_independent_from_release_version() {
-    assert_eq!(env!("CARGO_PKG_VERSION"), "0.0.5");
+    assert_eq!(env!("CARGO_PKG_VERSION"), "0.0.6");
 }
 
 #[test]

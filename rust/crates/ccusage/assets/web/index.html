@@ -3,329 +3,591 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
 <title>csusage · Token 用量</title>
 <style>
 :root {
-  --bg: #0d1117;
-  --bg-card: #161b22;
-  --border: #30363d;
-  --text: #e6edf3;
-  --text-dim: #8b949e;
-  --text-faint: #6e7681;
-  --accent: #58a6ff;
-  --green: #3fb950;
-  --heat-0: #21262d;
-  --heat-1: #0e4429;
-  --heat-2: #006d32;
-  --heat-3: #26a641;
-  --heat-4: #39d353;
+  --page: #ffffff;
+  --text: #171717;
+  --muted: #6f6f6f;
+  --faint: #a1a1a1;
+  --line: #ececec;
+  --line-strong: #dedede;
+  --blue-0: #f2f2f2;
+  --blue-1: #e2ecfa;
+  --blue-2: #c8dcf5;
+  --blue-3: #9fc3ed;
+  --blue-4: #5d97d9;
+  --blue-5: #2f73c8;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.06);
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
+
+* { box-sizing: border-box; }
+html { min-width: 320px; }
+
 body {
-  background: var(--bg);
+  margin: 0;
+  background: var(--page);
   color: var(--text);
-  font-family: -apple-system, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 14px;
-  padding: 32px 40px;
-  max-width: 1200px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, summary { font: inherit; }
+button:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--blue-5);
+  outline-offset: 2px;
+}
+
+.shell {
+  width: min(100% - 40px, 860px);
   margin: 0 auto;
+  padding: 32px 0 64px;
 }
-.header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0 42px;
+  text-align: center;
+}
+
 .avatar {
-  width: 56px; height: 56px; border-radius: 50%;
-  background: linear-gradient(135deg, #1f6feb, #58a6ff);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px; font-weight: 600; color: #fff; flex-shrink: 0;
+  display: grid;
+  width: 78px;
+  height: 78px;
+  place-items: center;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ac69c2 0%, #8a42ad 100%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03), var(--shadow);
+  color: #fff;
+  font-size: 29px;
+  font-weight: 450;
+  letter-spacing: -0.04em;
 }
-.header h1 { font-size: 20px; font-weight: 600; }
-.header .sub { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 28px; }
-.card {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
-  padding: 16px 18px;
+
+.profile h1 {
+  margin: 15px 0 7px;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
 }
-.card .label { color: var(--text-dim); font-size: 12px; margin-bottom: 8px; }
-.card .value { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.card .detail { color: var(--text-faint); font-size: 12px; margin-top: 4px; }
-.section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 24px; }
-.section-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
-.toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
-.toggle button {
-  background: transparent; color: var(--text-dim); border: none; padding: 5px 14px;
-  font-size: 12px; cursor: pointer;
+
+.profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--faint);
+  font-size: 13px;
 }
-.toggle button.active { background: #21262d; color: var(--text); }
-.heatmap-wrap { overflow-x: auto; }
-.heatmap { display: flex; gap: 3px; }
-.heatmap .col { display: flex; flex-direction: column; gap: 3px; }
-.heatmap .cell {
-  width: 13px; height: 13px; border-radius: 3px;
-  background: var(--heat-0); position: relative;
+.profile-meta .dot { color: #cfcfcf; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-bottom: 40px;
+  padding: 11px 0;
+  border: 1px solid var(--line);
+  border-radius: 17px;
 }
-.month-labels { display: flex; gap: 3px; margin-bottom: 4px; height: 14px; font-size: 10px; color: var(--text-faint); }
-.month-labels .m { padding-top: 2px; }
-.heatmap-body { display: flex; gap: 6px; }
-.day-labels { display: flex; flex-direction: column; gap: 3px; font-size: 10px; color: var(--text-faint); width: 26px; }
-.day-labels span { height: 13px; line-height: 13px; }
-.legend { display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 11px; color: var(--text-dim); justify-content: flex-end; }
-.legend .sw { width: 13px; height: 13px; border-radius: 3px; }
+
+.stat {
+  min-width: 0;
+  padding: 0 13px;
+  text-align: center;
+}
+.stat + .stat { border-left: 1px solid var(--line); }
+
+.stat-value, .stat-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stat-value {
+  color: #262626;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+}
+.stat-label { color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+.activity { margin-bottom: 46px; }
+.activity-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.activity-heading h2, .section-heading {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.view-switcher { display: inline-flex; align-items: center; gap: 17px; }
+.view-switcher button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #a1a1a1;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 24px;
+  transition: color 150ms ease;
+}
+.view-switcher button:hover { color: #555; }
+.view-switcher button.active { color: var(--text); font-weight: 600; }
+
+.heatmap-scroll {
+  overflow-x: auto;
+  padding: 1px 1px 5px;
+  scrollbar-width: thin;
+  scrollbar-color: #d8d8d8 transparent;
+}
+.heatmap-content { min-width: 720px; }
+.month-labels, .heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(53, minmax(0, 1fr));
+  gap: 4px;
+}
+.month-labels {
+  min-height: 18px;
+  margin-top: 8px;
+  color: #9a9a9a;
+  font-size: 11px;
+  line-height: 1;
+}
+.month-label { overflow: visible; white-space: nowrap; }
+.week-column {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+.heat-cell {
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: var(--blue-0);
+  cursor: default;
+  transition: transform 100ms ease, box-shadow 100ms ease;
+}
+.heat-cell:hover {
+  position: relative;
+  z-index: 1;
+  transform: scale(1.22);
+  box-shadow: 0 0 0 2px #fff;
+}
+.week-column.weekly .heat-cell { height: 14px; aspect-ratio: auto; }
+
 .tooltip {
-  position: fixed; background: #010409; border: 1px solid var(--border); border-radius: 6px;
-  padding: 8px 12px; font-size: 12px; pointer-events: none; z-index: 10; display: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4); white-space: nowrap;
+  position: fixed;
+  z-index: 20;
+  display: none;
+  max-width: min(310px, calc(100vw - 24px));
+  padding: 8px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: #202020;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.5;
+  pointer-events: none;
 }
-table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
-th { color: var(--text-dim); font-weight: 500; text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 12px; }
-td { padding: 8px 12px; border-bottom: 1px solid #21262d; color: var(--text); }
-tr:last-child td { border-bottom: none; }
-td.num, th.num { text-align: right; }
-.agent-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
-.loading { text-align: center; color: var(--text-dim); padding: 80px 0; font-size: 15px; }
-.empty { text-align: center; color: var(--text-faint); padding: 60px 0; }
-@media (prefers-color-scheme: light) {
-  :root { --bg:#ffffff; --bg-card:#f6f8fa; --border:#d0d7de; --text:#1f2328; --text-dim:#57606a; --text-faint:#8c959f; --heat-0:#ebedf0; }
+
+.details-stack {
+  display: grid;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+.data-panel {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+.data-panel summary {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 17px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.data-panel summary::-webkit-details-marker { display: none; }
+.summary-copy { display: flex; align-items: baseline; gap: 8px; }
+.summary-count { color: var(--faint); font-size: 12px; }
+.chevron {
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid #888;
+  border-bottom: 1.5px solid #888;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 150ms ease;
+}
+.data-panel[open] .chevron { transform: rotate(225deg) translate(-1px, -1px); }
+.table-scroll { overflow-x: auto; border-top: 1px solid var(--line); }
+
+table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+th, td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+th { background: #fbfbfb; color: var(--muted); font-size: 11px; font-weight: 500; }
+td { color: #404040; }
+tr:last-child td { border-bottom: 0; }
+.num { text-align: right; }
+.agent-name { display: inline-flex; align-items: center; gap: 8px; color: #252525; font-weight: 500; }
+.agent-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; }
+
+.loading-state, .error-state {
+  display: grid;
+  min-height: 72vh;
+  place-items: center;
+  color: var(--muted);
+  text-align: center;
+}
+.spinner {
+  width: 22px;
+  height: 22px;
+  margin: 0 auto 13px;
+  border: 2px solid #e7e7e7;
+  border-top-color: #777;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+.retry {
+  margin-top: 14px;
+  padding: 7px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 680px) {
+  .shell { width: min(100% - 28px, 860px); padding-top: 24px; }
+  .profile { padding-bottom: 32px; }
+  .avatar { width: 70px; height: 70px; font-size: 26px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0; }
+  .stat { padding: 12px 8px; }
+  .stat + .stat { border-left: 0; }
+  .stat:nth-child(even) { border-left: 1px solid var(--line); }
+  .stat:nth-child(n + 3) { border-top: 1px solid var(--line); }
+  .stat:last-child { grid-column: 1 / -1; }
+  .activity-heading { align-items: flex-start; gap: 12px; }
+  .view-switcher { gap: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
 </style>
 </head>
 <body>
-<div id="app" class="loading">正在加载用量数据…</div>
-<div class="tooltip" id="tooltip"></div>
+<main id="app" class="loading-state" aria-live="polite">
+  <div><div class="spinner"></div>正在汇总用量数据…</div>
+</main>
+<div class="tooltip" id="tooltip" role="tooltip"></div>
 
 <script>
-const fmtInt = n => Number(n || 0).toLocaleString();
-const fmtCompact = n => {
-  if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
-  if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
-  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
-  return String(n);
-};
-const fmtCost = c => c == null ? '—' : (c < 0.01 && c > 0 ? '$' + c.toFixed(6) : '$' + c.toFixed(2));
-const fmtDuration = ms => {
-  if (!ms || ms <= 0) return '—';
-  const mins = Math.floor(ms / 60000);
-  if (mins < 1) return '<1 分钟';
-  if (mins < 60) return mins + ' 分钟';
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return hours + ' 小时 ' + (mins % 60) + ' 分';
-  return Math.floor(hours / 24) + ' 天 ' + (hours % 24) + ' 小时';
-};
-const AGENT_COLORS = ['58a6ff','3fb950','d29922','f778ba','a371f7','39c5cf','fb8532','8b949e','ed4d4d','7ee787','7aa2f7','ff9e64','9ece6a','bb9af7','ff757f','e0af68','73daca','c0caf5','f7768e'];
-const HEAT = ['--heat-0','--heat-1','--heat-2','--heat-3','--heat-4'].map(v => getComputedStyle(document.documentElement).getPropertyValue(v).trim());
-
+const HEAT = ['var(--blue-0)', 'var(--blue-1)', 'var(--blue-2)', 'var(--blue-3)', 'var(--blue-4)', 'var(--blue-5)'];
+const AGENT_COLORS = ['#2f73c8', '#8a42ad', '#16866f', '#ce6b32', '#b83e6c', '#66853b', '#7f6acb', '#398aab', '#a97318', '#5b6c88'];
+const DAY_MS = 86_400_000;
 let data = null;
 let mode = 'daily';
 
+const fmtInt = value => Number(value || 0).toLocaleString('zh-CN');
+
+function fmtCompact(value) {
+  const number = Number(value || 0);
+  if (number >= 1e8) return trimDecimal(number / 1e8) + '亿';
+  if (number >= 1e4) return trimDecimal(number / 1e4) + '万';
+  return fmtInt(number);
+}
+
+function trimDecimal(value) {
+  return value.toLocaleString('zh-CN', {maximumFractionDigits: 1, minimumFractionDigits: value < 100 ? 1 : 0});
+}
+
+function fmtCost(value) {
+  if (value == null) return '—';
+  const number = Number(value);
+  return number > 0 && number < 0.01 ? '$' + number.toFixed(4) : '$' + number.toFixed(2);
+}
+
+function fmtDuration(ms) {
+  if (!ms || ms <= 0) return '—';
+  const minutes = Math.floor(ms / 60_000);
+  if (minutes < 1) return '<1 分钟';
+  if (minutes < 60) return minutes + ' 分钟';
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return hours + ' 小时 ' + (minutes % 60) + ' 分';
+  return Math.floor(hours / 24) + ' 天 ' + (hours % 24) + ' 小时';
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function utcDate(value) {
+  const date = value instanceof Date ? new Date(value) : new Date(value + 'T00:00:00Z');
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+const dateKey = date => date.toISOString().slice(0, 10);
+const addUtcDays = (date, days) => new Date(date.getTime() + days * DAY_MS);
+
+function initials(name) {
+  const clean = String(name || 'user').trim();
+  const words = clean.split(/[\s_-]+/).filter(Boolean);
+  if (words.length > 1) return (words[0][0] + words[1][0]).toUpperCase();
+  return (clean.length <= 3 ? clean.slice(0, 2) : clean.slice(0, 1)).toUpperCase();
+}
+
 async function main() {
-  const res = await fetch('/api/usage');
-  data = await res.json();
-  render();
+  try {
+    const response = await fetch('/api/usage', {headers: {'Accept': 'application/json'}});
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || '无法加载用量数据');
+    data = payload;
+    render();
+  } catch (error) {
+    const app = document.getElementById('app');
+    app.className = 'error-state';
+    app.innerHTML = `<div><strong>用量数据加载失败</strong><div style="margin-top:8px">${escapeHtml(error.message)}</div><button class="retry" onclick="location.reload()">重试</button></div>`;
+  }
 }
 
 function render() {
-  const user = (data.user || 'user').toString();
-  const initial = user.charAt(0).toUpperCase();
-  const agents = data.agents || [];
+  const user = String(data.user || 'user');
+  const agents = Array.isArray(data.agents) ? data.agents : [];
+  const sessions = Array.isArray(data.sessions) ? data.sessions : [];
   const peak = data.peakDay || {};
-  document.getElementById('app').innerHTML = `
-    <div class="header">
-      <div class="avatar">${initial}</div>
-      <div>
-        <h1>${user}</h1>
-        <div class="sub">共检测到 ${agents.length} 个 agent · 数据截至 ${new Date(data.generatedAt).toLocaleString('zh-CN')}</div>
+  const generatedAt = data.generatedAt ? new Date(data.generatedAt).toLocaleString('zh-CN', {dateStyle: 'medium', timeStyle: 'short'}) : '—';
+  const app = document.getElementById('app');
+  app.className = 'shell';
+  app.innerHTML = `
+    <header class="profile">
+      <div class="avatar" aria-hidden="true">${escapeHtml(initials(user))}</div>
+      <h1>${escapeHtml(user)}</h1>
+      <div class="profile-meta">
+        <span>@${escapeHtml(user)}</span><span class="dot">·</span>
+        <span>${fmtInt(agents.length)} 个 Agent</span><span class="dot">·</span>
+        <span>${fmtInt(data.totalSessions)} 个会话</span><span class="dot">·</span>
+        <span>${fmtCost(data.totalCostUsd)}</span>
       </div>
-    </div>
-    <div class="cards">
-      ${card('累计 Token', fmtInt(data.totalTokens), `输入 ${fmtInt(data.totalInputTokens)} · 输出 ${fmtInt(data.totalOutputTokens)}`)}
-      ${card('累计成本', fmtCost(data.totalCostUsd), `${fmtInt(data.totalSessions)} 个会话`)}
-      ${card('峰值 Token（单日）', fmtCompact(peak.totalTokens || 0), peak.date ? new Date(peak.date).toLocaleDateString('zh-CN') : '—')}
-      ${card('最长会话时长', fmtDuration(data.longestSessionMs), '')}
-      ${card('当前连续天数', (data.currentStreakDays || 0) + ' 天', '')}
-      ${card('最长连续天数', (data.longestStreakDays || 0) + ' 天', '')}
-    </div>
-    <div class="section">
-      <div class="section-title">
-        <span>用量热力图</span>
-        <div class="toggle">
-          <button id="btn-daily" onclick="setMode('daily')">每日</button>
-          <button id="btn-weekly" onclick="setMode('weekly')">每周</button>
-          <button id="btn-cumulative" onclick="setMode('cumulative')">累计</button>
+    </header>
+    <section class="stats" aria-label="用量概览">
+      ${stat(fmtCompact(data.totalTokens), '累计 Token 数', `输入 ${fmtInt(data.totalInputTokens)}，输出 ${fmtInt(data.totalOutputTokens)}`)}
+      ${stat(fmtCompact(peak.totalTokens), '峰值 Token 数', peak.date || '')}
+      ${stat(fmtDuration(data.longestSessionMs), '最长聊天时长')}
+      ${stat(fmtInt(data.currentStreakDays) + ' 天', '当前连续天数')}
+      ${stat(fmtInt(data.longestStreakDays) + ' 天', '最长连续天数')}
+    </section>
+    <section class="activity" aria-labelledby="activity-title">
+      <div class="activity-heading">
+        <h2 id="activity-title">Token 活动</h2>
+        <div class="view-switcher" role="group" aria-label="活动统计方式">
+          <button id="btn-daily" type="button" onclick="setMode('daily')">每日</button>
+          <button id="btn-weekly" type="button" onclick="setMode('weekly')">每周</button>
+          <button id="btn-cumulative" type="button" onclick="setMode('cumulative')">累计</button>
         </div>
       </div>
-      <div class="heatmap-wrap">${renderHeatmap()}</div>
-      <div class="legend">
-        <span>少</span>
-        ${HEAT.map(c => `<span class="sw" style="background:${c}"></span>`).join('')}
-        <span>多</span>
-      </div>
-    </div>
-    ${agents.length ? `
-    <div class="section">
-      <div class="section-title"><span>Agent 明细</span></div>
-      <table>
-        <thead><tr><th>Agent</th><th class="num">输入</th><th class="num">输出</th><th class="num">缓存读</th><th class="num">缓存写</th><th class="num">合计</th><th class="num">成本</th></tr></thead>
-        <tbody>${agents.map((a, i) => `
-          <tr>
-            <td><span class="agent-dot" style="background:#${AGENT_COLORS[i % AGENT_COLORS.length]}"></span>${a.agent}</td>
-            <td class="num">${fmtInt(a.inputTokens)}</td>
-            <td class="num">${fmtInt(a.outputTokens)}</td>
-            <td class="num">${fmtInt(a.cacheReadTokens)}</td>
-            <td class="num">${fmtInt(a.cacheWriteTokens)}</td>
-            <td class="num">${fmtInt(a.totalTokens)}</td>
-            <td class="num">${fmtCost(a.costUsd)}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>` : ''}
-    ${data.sessions && data.sessions.length ? `
-    <div class="section">
-      <div class="section-title"><span>最近会话（前 30）</span></div>
-      <table>
-        <thead><tr><th>Agent</th><th>会话</th><th>开始时间</th><th class="num">时长</th><th class="num">合计</th><th class="num">成本</th><th>模型</th></tr></thead>
-        <tbody>${data.sessions.slice(0, 30).map(s => `
-          <tr>
-            <td>${s.agent}</td>
-            <td title="${s.sessionId}">${s.sessionId.length > 18 ? s.sessionId.slice(0, 18) + '…' : s.sessionId}</td>
-            <td>${new Date(s.startMs).toLocaleString('zh-CN')}</td>
-            <td class="num">${fmtDuration(s.durationMs)}</td>
-            <td class="num">${fmtInt(s.totalTokens)}</td>
-            <td class="num">${fmtCost(s.costUsd)}</td>
-            <td>${(s.models || []).join(', ')}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>` : ''}
+      <div class="heatmap-scroll"><div id="heatmap"></div></div>
+    </section>
+    <section class="details-stack" aria-label="详细用量">
+      ${renderAgentPanel(agents)}
+      ${renderSessionPanel(sessions)}
+    </section>
+    <div style="margin-top:18px;text-align:center;color:var(--faint);font-size:11px">数据更新于 ${escapeHtml(generatedAt)}</div>
   `;
   setMode(mode);
 }
 
-function card(label, value, detail) {
-  return `<div class="card"><div class="label">${label}</div><div class="value">${value}</div>${detail ? `<div class="detail">${detail}</div>` : ''}</div>`;
+function stat(value, label, title = '') {
+  return `<div class="stat"${title ? ` title="${escapeHtml(title)}"` : ''}><div class="stat-value">${escapeHtml(value)}</div><div class="stat-label">${escapeHtml(label)}</div></div>`;
 }
 
-function setMode(m) {
-  mode = m;
-  ['daily', 'weekly', 'cumulative'].forEach(k => {
-    const btn = document.getElementById('btn-' + k);
-    if (btn) btn.classList.toggle('active', k === m);
-  });
-  document.querySelector('.heatmap-wrap').innerHTML = renderHeatmap();
+function renderAgentPanel(agents) {
+  if (!agents.length) return '';
+  const rows = agents.map((agent, index) => `
+    <tr><td><span class="agent-name"><span class="agent-dot" style="background:${AGENT_COLORS[index % AGENT_COLORS.length]}"></span>${escapeHtml(agent.agent)}</span></td>
+    <td class="num">${fmtInt(agent.inputTokens)}</td><td class="num">${fmtInt(agent.outputTokens)}</td>
+    <td class="num">${fmtInt(agent.cacheReadTokens)}</td><td class="num">${fmtInt(agent.cacheWriteTokens)}</td>
+    <td class="num">${fmtInt(agent.totalTokens)}</td><td class="num">${fmtCost(agent.costUsd)}</td></tr>`).join('');
+  return `<details class="data-panel">
+    <summary><span class="summary-copy"><span class="section-heading">Agent 明细</span><span class="summary-count">${fmtInt(agents.length)}</span></span><span class="chevron" aria-hidden="true"></span></summary>
+    <div class="table-scroll"><table><thead><tr><th>Agent</th><th class="num">输入</th><th class="num">输出</th><th class="num">缓存读</th><th class="num">缓存写</th><th class="num">合计</th><th class="num">成本</th></tr></thead><tbody>${rows}</tbody></table></div>
+  </details>`;
+}
+
+function renderSessionPanel(sessions) {
+  if (!sessions.length) return '';
+  const visible = sessions.slice(0, 30);
+  const rows = visible.map(session => {
+    const id = String(session.sessionId || '');
+    const shortId = id.length > 18 ? id.slice(0, 18) + '…' : id;
+    const started = session.startMs ? new Date(session.startMs).toLocaleString('zh-CN', {dateStyle: 'short', timeStyle: 'short'}) : '—';
+    return `<tr><td>${escapeHtml(session.agent)}</td><td title="${escapeHtml(id)}">${escapeHtml(shortId)}</td>
+      <td>${escapeHtml(started)}</td><td class="num">${escapeHtml(fmtDuration(session.durationMs))}</td>
+      <td class="num">${fmtInt(session.totalTokens)}</td><td class="num">${fmtCost(session.costUsd)}</td>
+      <td>${escapeHtml((session.models || []).join(', ') || '—')}</td></tr>`;
+  }).join('');
+  return `<details class="data-panel">
+    <summary><span class="summary-copy"><span class="section-heading">最近会话</span><span class="summary-count">${fmtInt(visible.length)}</span></span><span class="chevron" aria-hidden="true"></span></summary>
+    <div class="table-scroll"><table><thead><tr><th>Agent</th><th>会话</th><th>开始时间</th><th class="num">时长</th><th class="num">合计</th><th class="num">成本</th><th>模型</th></tr></thead><tbody>${rows}</tbody></table></div>
+  </details>`;
+}
+
+function setMode(nextMode) {
+  mode = nextMode;
+  for (const key of ['daily', 'weekly', 'cumulative']) {
+    const button = document.getElementById('btn-' + key);
+    if (!button) continue;
+    const active = key === mode;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  }
+  const heatmap = document.getElementById('heatmap');
+  if (heatmap) heatmap.innerHTML = renderHeatmap();
+}
+
+function activityRange() {
+  const today = utcDate(new Date());
+  const end = addUtcDays(today, 6 - today.getUTCDay());
+  return {start: addUtcDays(end, -(53 * 7 - 1)), end};
 }
 
 function renderHeatmap() {
-  const days = (data.days || []).map(d => ({...d, date: new Date(d.date + 'T00:00:00Z')}));
-  if (!days.length) return '<div class="empty">没有用量数据</div>';
-  days.sort((a, b) => a.date - b.date);
+  const {start} = activityRange();
+  const today = utcDate(new Date());
+  const daysByDate = new Map((data.days || []).map(day => [String(day.date), day]));
+  const columns = [];
+  const weeklyTotals = new Map();
+  let cumulative = 0;
+  let maxValue = 1;
 
-  let cells;
-  if (mode === 'daily') {
-    cells = buildDailyCells(days);
-  } else if (mode === 'weekly') {
-    cells = buildWeeklyCells(days);
+  for (let weekIndex = 0; weekIndex < 53; weekIndex++) {
+    const weekStart = addUtcDays(start, weekIndex * 7);
+    const week = [];
+    let weekTotal = 0;
+    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+      const date = addUtcDays(weekStart, dayIndex);
+      const record = daysByDate.get(dateKey(date));
+      weekTotal += Number(record?.totalTokens || 0);
+      week.push({date, record});
+    }
+    weeklyTotals.set(dateKey(weekStart), weekTotal);
+    columns.push(week);
+  }
+
+  const cells = columns.map(week => week.map(({date, record}) => {
+    const dayValue = Number(record?.totalTokens || 0);
+    cumulative += dayValue;
+    let value = dayValue;
+    if (mode === 'weekly') value = weeklyTotals.get(dateKey(week[0].date)) || 0;
+    if (mode === 'cumulative') value = cumulative;
+    if (date > today) value = 0;
+    maxValue = Math.max(maxValue, value);
+    return {date, record, value};
+  }));
+
+  const monthLabels = [];
+  for (let index = 0; index < 53; index++) {
+    const weekStart = columns[index][0].date;
+    for (let offset = 0; offset < 7; offset++) {
+      const date = addUtcDays(weekStart, offset);
+      if (date.getUTCDate() === 1 && index > 1) {
+        monthLabels.push({column: index + 1, label: (date.getUTCMonth() + 1) + '月'});
+        break;
+      }
+    }
+  }
+
+  const labelsHtml = monthLabels.map(item => `<span class="month-label" style="grid-column:${item.column}">${item.label}</span>`).join('');
+  let gridHtml;
+  if (mode === 'weekly') {
+    gridHtml = cells.map(week => {
+      const cell = week[0];
+      const total = weeklyTotals.get(dateKey(cell.date)) || 0;
+      const end = addUtcDays(cell.date, 6);
+      return `<div class="week-column weekly">${heatCell(total, maxValue, `${dateKey(cell.date)} 至 ${dateKey(end)} · ${fmtInt(total)} tokens`)}</div>`;
+    }).join('');
   } else {
-    cells = buildCumulativeCells(days);
+    gridHtml = cells.map(week => `<div class="week-column">${week.map(cell => {
+      const key = dateKey(cell.date);
+      const tip = cell.date > today
+        ? `${key} · 尚无数据`
+        : mode === 'cumulative'
+        ? `${key} · 累计 ${fmtInt(cell.value)} tokens`
+        : cell.record
+          ? `${key} · ${fmtInt(cell.record.totalTokens)} tokens · ${fmtCost(cell.record.costUsd)}`
+          : `${key} · 无用量`;
+      return heatCell(cell.value, maxValue, tip);
+    }).join('')}</div>`).join('');
   }
-  const max = Math.max(...cells.map(c => c.value), 1);
-  const months = [];
-  let lastMonth = -1;
-  const cols = [];
-  let col = [];
-  cells.forEach((cell, i) => {
-    const m = cell.date.getUTCMonth();
-    if (m !== lastMonth) {
-      months.push({idx: cols.length, name: cell.date.getUTCMonth() + 1 + '月'});
-      lastMonth = m;
-    }
-    col.push(cell);
-    if (cell.date.getUTCDay() === 6 || i === cells.length - 1) {
-      cols.push(col);
-      col = [];
-    }
-  });
-  let html = `<div class="month-labels">${cols.map((c, i) => {
-    const m = months.find(mm => mm.idx === i);
-    return `<div class="m" style="width:16px;${m ? '' : 'visibility:hidden'}">${m ? m.name : ''}</div>`;
-  }).join('')}</div>`;
-  html += `<div class="heatmap-body"><div class="day-labels"><span></span><span>周一</span><span></span><span>周三</span><span></span><span>周五</span><span></span></div><div class="heatmap">`;
-  html += cols.map(c => `<div class="col">${c.map(cell => {
-    const t = level(cell.value, max);
-    return `<div class="cell" style="background:${cell.value > 0 ? HEAT[t] : getComputedStyle(document.documentElement).getPropertyValue('--heat-0').trim()}" data-tip="${cell.tip}"></div>`;
-  }).join('')}</div>`).join('');
-  html += '</div></div>';
-
-  const tooltip = document.getElementById('tooltip');
-  setTimeout(() => {
-    document.querySelectorAll('.cell').forEach(cell => {
-      cell.onmouseenter = e => {
-        tooltip.textContent = cell.dataset.tip;
-        tooltip.style.display = 'block';
-        tooltip.style.left = Math.min(e.clientX + 12, window.innerWidth - 260) + 'px';
-        tooltip.style.top = (e.clientY + 14) + 'px';
-      };
-      cell.onmouseleave = () => tooltip.style.display = 'none';
-    });
-  }, 0);
-  return html;
+  return `<div class="heatmap-content"><div class="heatmap-grid">${gridHtml}</div><div class="month-labels">${labelsHtml}</div></div>`;
 }
 
-function padDays(days) {
-  const first = days[0].date;
-  const start = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth(), first.getUTCDate()));
-  start.setUTCDate(start.getUTCDate() - start.getUTCDay());
-  const last = days[days.length - 1].date;
-  const end = new Date(Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), last.getUTCDate()));
-  end.setUTCDate(end.getUTCDate() + (6 - end.getUTCDay()));
-  const byDate = new Map(days.map(d => [d.date.toISOString().slice(0, 10), d]));
-  const out = [];
-  for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
-    const key = d.toISOString().slice(0, 10);
-    const day = byDate.get(key);
-    out.push({
-      date: new Date(d),
-      value: day ? day.totalTokens : 0,
-      tip: key + (day ? ` · ${fmtInt(day.totalTokens)} tokens · 输入 ${fmtInt(day.inputTokens)} 输出 ${fmtInt(day.outputTokens)} · ${fmtCost(day.costUsd)}` : ' · 无用量'),
-    });
-  }
-  return out;
+function heatCell(value, max, tip) {
+  return `<span class="heat-cell" style="background:${HEAT[heatLevel(value, max)]}" data-tip="${escapeHtml(tip)}" role="img" aria-label="${escapeHtml(tip)}"></span>`;
 }
 
-function buildDailyCells(days) {
-  return padDays(days);
+function heatLevel(value, max) {
+  if (!value || value <= 0) return 0;
+  const ratio = Math.log1p(value) / Math.log1p(max);
+  if (ratio <= 0.35) return 1;
+  if (ratio <= 0.55) return 2;
+  if (ratio <= 0.72) return 3;
+  if (ratio <= 0.88) return 4;
+  return 5;
 }
 
-function buildWeeklyCells(days) {
-  const weeks = new Map();
-  for (const d of days) {
-    const key = d.date.toISOString().slice(0, 10);
-    const dt = new Date(d.date);
-    dt.setUTCDate(dt.getUTCDate() - dt.getUTCDay());
-    const wk = dt.toISOString().slice(0, 10);
-    if (!weeks.has(wk)) weeks.set(wk, {date: new Date(dt), value: 0, tip: ''});
-    weeks.get(wk).value += d.totalTokens;
-  }
-  const arr = [...weeks.values()];
-  for (const wk of arr) {
-    wk.tip = `周（${wk.date.toISOString().slice(0, 10)} 起）· ${fmtInt(wk.value)} tokens`;
-  }
-  return arr;
+const tooltip = document.getElementById('tooltip');
+function showTooltip(cell, event) {
+  tooltip.textContent = cell.dataset.tip;
+  tooltip.style.display = 'block';
+  const rect = cell.getBoundingClientRect();
+  const left = event?.clientX || rect.left + rect.width / 2;
+  const top = event?.clientY || rect.top;
+  tooltip.style.left = Math.max(12, Math.min(left + 10, window.innerWidth - tooltip.offsetWidth - 12)) + 'px';
+  tooltip.style.top = Math.max(12, top - tooltip.offsetHeight - 10) + 'px';
 }
 
-function buildCumulativeCells(days) {
-  let total = 0;
-  return padDays(days).map(d => {
-    total += d.value;
-    return {date: d.date, value: d.value === 0 ? 0 : total, tip: d.tip + ` · 累计 ${fmtInt(total)} tokens`};
-  });
-}
-
-function level(value, max) {
-  if (value <= 0) return 0;
-  const ratio = value / max;
-  if (ratio <= 0.25) return 1;
-  if (ratio <= 0.5) return 2;
-  if (ratio <= 0.75) return 3;
-  return 4;
-}
-
+document.addEventListener('pointerover', event => {
+  const cell = event.target.closest?.('.heat-cell');
+  if (cell) showTooltip(cell, event);
+});
+document.addEventListener('pointerout', event => {
+  if (event.target.closest?.('.heat-cell')) tooltip.style.display = 'none';
+});
 main();
 </script>
 </body>

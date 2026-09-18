@@ -313,8 +313,12 @@ fn build_dashboard(entries: &[DashboardEntry]) -> Value {
             .date(),
     );
     let (current_streak, longest_streak) = day_streaks(days.keys(), today);
+    let user = std::env::var("USER")
+        .or_else(|_| std::env::var("USERNAME"))
+        .unwrap_or_else(|_| "user".to_string());
 
     json!({
+        "user": user,
         "generatedAt": jiff::Timestamp::now().to_string(),
         "totalTokens": grand_total,
         "totalInputTokens": grand_input,
