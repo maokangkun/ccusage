@@ -19,7 +19,8 @@ use crate::{
     model_aliases::set_model_aliases_for_tests,
 };
 use csusage_test_support::{
-    EnvVarsGuard, claude_science::create_fixture as claude_science_create_fixture, fs_fixture,
+    EnvVarsGuard, claude_science::create_fixture as claude_science_create_fixture,
+    dsh::create_fixture as dsh_create_fixture, fs_fixture,
     openhands::create_fixture as openhands_create_fixture, zcode::create_fixture,
 };
 
@@ -836,6 +837,48 @@ fn openhands_fixture_reports_daily_monthly_session_json_and_table_snapshots() {
         .unwrap()
     );
 }
+#[test]
+fn dsh_fixture_reports_daily_monthly_session_json_and_table_snapshots() {
+    let fixture = fs_fixture!({});
+    let _ = fixture.create_dir_all("dsh");
+    dsh_create_fixture(fixture.path("dsh"));
+    let _env = isolated_agent_env(&fixture, "DSH_HOME", fixture.path("dsh").into_os_string());
+    let shared = fixture_shared("19700101", "21000101");
+
+    let daily = load_rows(AgentReportKind::Daily, &shared).unwrap();
+    let session = load_rows(AgentReportKind::Session, &shared).unwrap();
+
+    assert_eq!(daily.detected_agents, vec!["dsh"]);
+    assert_eq!(session.detected_agents, vec!["dsh"]);
+    // Both fixtures fall on the same day, so daily has a single row.
+    assert_eq!(daily.rows.len(), 1);
+    assert_eq!(daily.rows[0].input_tokens, 650);
+    assert_eq!(daily.rows[0].output_tokens, 65);
+    assert_eq!(
+        session.rows[0].period,
+        "session-11111111-1111-4111-8111-111111111111"
+    );
+    assert_eq!(session.rows[0].total_tokens, 385);
+    assert_eq!(
+        session.rows[1].period,
+        "session-22222222-2222-4222-8222-222222222222"
+    );
+    assert_eq!(session.rows[1].total_tokens, 330);
+
+    insta::assert_json_snapshot!(
+        "dsh_fixture_daily_json",
+        report_json(&daily.rows, AgentReportKind::Daily)
+    );
+    insta::assert_snapshot!(
+        "dsh_fixture_daily_table",
+        serde_json::to_string_pretty(&table_snapshot(
+            &daily.rows,
+            AgentReportKind::Daily,
+            &daily.detected_agents,
+        ))
+        .unwrap()
+    );
+}
 
 #[test]
 fn unified_report_omits_zcode_without_usage_database() {
@@ -984,6 +1027,7 @@ fn isolated_agent_env(
         "ZCODE_HOME",
         "CLAUDE_SCIENCE_DB",
         "OPENHANDS_DIR",
+        "DSH_HOME",
     ]
     .into_iter()
     .map(|key| (key, None::<OsString>))

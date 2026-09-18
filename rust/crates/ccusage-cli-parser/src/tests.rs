@@ -214,6 +214,7 @@ fn command_snapshot(command: Option<Command>) -> Value {
         Some(Command::ZCode(args)) => agent_command_snapshot("zcode", args),
         Some(Command::ClaudeScience(args)) => agent_command_snapshot("claude-science", args),
         Some(Command::OpenHands(args)) => agent_command_snapshot("openhands", args),
+        Some(Command::Dsh(args)) => agent_command_snapshot("dsh", args),
     }
 }
 
@@ -976,7 +977,7 @@ fn snapshots_cli_parse_error_guidance() {
 
 #[test]
 fn cargo_version_is_independent_from_release_version() {
-    assert_eq!(env!("CARGO_PKG_VERSION"), "0.0.7");
+    assert_eq!(env!("CARGO_PKG_VERSION"), "0.0.8");
 }
 
 #[test]

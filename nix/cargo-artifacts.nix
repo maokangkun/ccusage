@@ -37,6 +37,7 @@ let
     "claude"
     "claude-science"
     "openhands"
+    "dsh"
     "codebuff"
     "codex"
     "copilot"

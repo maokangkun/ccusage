@@ -18,6 +18,7 @@ mod adapter {
     pub use csusage_adapter_codex as codex;
     pub use csusage_adapter_copilot as copilot;
     pub use csusage_adapter_droid as droid;
+    pub use csusage_adapter_dsh as dsh;
     pub use csusage_adapter_gemini as gemini;
     pub use csusage_adapter_goose as goose;
     pub use csusage_adapter_grok as grok;

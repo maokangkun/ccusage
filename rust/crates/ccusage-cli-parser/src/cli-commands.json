@@ -124,6 +124,10 @@
 			{
 				"name": "openhands",
 				"description": "Show OpenHands usage commands"
+			},
+			{
+				"name": "dsh",
+				"description": "Show DSH usage commands"
 			}
 		]
 	},
@@ -948,6 +952,43 @@
 		{
 			"path": ["openhands", "session"],
 			"description": "Show OpenHands usage grouped by session",
+			"usage": "ccusage claude-science session <OPTIONS>",
+			"options": "agent_options"
+		},
+		{
+			"path": ["dsh"],
+			"description": "Usage reports for DSH.",
+			"usage": "ccusage claude-science <COMMANDS>",
+			"commands": [
+				{
+					"name": "daily",
+					"description": "Show DSH usage grouped by date"
+				},
+				{
+					"name": "monthly",
+					"description": "Show DSH usage grouped by month"
+				},
+				{
+					"name": "session",
+					"description": "Show DSH usage grouped by session"
+				}
+			]
+		},
+		{
+			"path": ["dsh", "daily"],
+			"description": "Show DSH usage grouped by date",
+			"usage": "ccusage claude-science daily <OPTIONS>",
+			"options": "agent_period_options"
+		},
+		{
+			"path": ["dsh", "monthly"],
+			"description": "Show DSH usage grouped by month",
+			"usage": "ccusage claude-science monthly <OPTIONS>",
+			"options": "agent_period_options"
+		},
+		{
+			"path": ["dsh", "session"],
+			"description": "Show DSH usage grouped by session",
 			"usage": "ccusage claude-science session <OPTIONS>",
 			"options": "agent_options"
 		}

@@ -1,0 +1,53 @@
+---
+source: crates/ccusage-adapter-all/src/tests.rs
+expression: "report_json(&daily.rows, AgentReportKind::Daily)"
+---
+{
+  "daily": [
+    {
+      "agent": "all",
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 0,
+      "inputTokens": 650,
+      "metadata": {
+        "agents": [
+          "dsh"
+        ]
+      },
+      "modelBreakdowns": [
+        {
+          "cacheCreationTokens": 0,
+          "cacheReadTokens": 0,
+          "cost": 0.0000049999999999999996,
+          "inputTokens": 50,
+          "modelName": "glm-5.3-flash",
+          "outputTokens": 5
+        },
+        {
+          "cacheCreationTokens": 0,
+          "cacheReadTokens": 0,
+          "cost": 0.0,
+          "inputTokens": 600,
+          "modelName": "deepseek-flash",
+          "outputTokens": 60
+        }
+      ],
+      "modelsUsed": [
+        "deepseek-flash",
+        "glm-5.3-flash"
+      ],
+      "outputTokens": 65,
+      "period": "1970-01-01",
+      "totalCost": 0.0000049999999999999996,
+      "totalTokens": 715
+    }
+  ],
+  "totals": {
+    "cacheCreationTokens": 0,
+    "cacheReadTokens": 0,
+    "inputTokens": 650,
+    "outputTokens": 65,
+    "totalCost": 0.0000049999999999999996,
+    "totalTokens": 715
+  }
+}

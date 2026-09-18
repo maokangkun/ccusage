@@ -11,6 +11,7 @@ use assert_fs::{
 };
 
 pub mod claude_science;
+pub mod dsh;
 pub mod openhands;
 pub mod zcode;
 

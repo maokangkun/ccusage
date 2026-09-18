@@ -76,6 +76,7 @@ pub const BUILT_IN_AGENT_NAMES: &[&str] = &[
     "zcode",
     "claude-science",
     "openhands",
+    "dsh",
 ];
 
 pub type Result<T> = std::result::Result<T, CliError>;

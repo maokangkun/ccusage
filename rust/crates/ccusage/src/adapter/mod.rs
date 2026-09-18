@@ -7,6 +7,7 @@ pub(crate) use csusage_adapter_codebuff as codebuff;
 pub(crate) use csusage_adapter_codex as codex;
 pub(crate) use csusage_adapter_copilot as copilot;
 pub(crate) use csusage_adapter_droid as droid;
+pub(crate) use csusage_adapter_dsh as dsh;
 pub(crate) use csusage_adapter_gemini as gemini;
 pub(crate) use csusage_adapter_goose as goose;
 pub(crate) use csusage_adapter_grok as grok;

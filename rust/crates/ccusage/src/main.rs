@@ -53,6 +53,7 @@ fn main() -> Result<()> {
         Some(Command::ZCode(args)) => adapter::zcode::run(args),
         Some(Command::ClaudeScience(args)) => adapter::claude_science::run(args),
         Some(Command::OpenHands(args)) => adapter::openhands::run(args),
+        Some(Command::Dsh(args)) => adapter::dsh::run(args),
         None => {
             let args = AgentCommandArgs {
                 shared: cli.shared,
@@ -91,7 +92,7 @@ mod tests {
 
     #[test]
     fn agent_commands_are_exposed_by_independent_crates() {
-        let runs: [fn(AgentCommandArgs) -> Result<()>; 19] = [
+        let runs: [fn(AgentCommandArgs) -> Result<()>; 20] = [
             csusage_adapter_amp::run,
             csusage_adapter_antigravity::run,
             csusage_adapter_codebuff::run,
@@ -111,9 +112,10 @@ mod tests {
             csusage_adapter_zcode::run,
             csusage_adapter_claude_science::run,
             csusage_adapter_openhands::run,
+            csusage_adapter_dsh::run,
         ];
 
-        assert_eq!(runs.len(), 19);
+        assert_eq!(runs.len(), 20);
     }
 
     #[test]

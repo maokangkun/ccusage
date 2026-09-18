@@ -34,6 +34,7 @@ COMMANDS:
   zcode                      Show ZCode usage commands
   claude-science             Show Claude Science usage commands
   openhands                  Show OpenHands usage commands
+  dsh                        Show DSH usage commands
 
 For more info, run any command with the `--help` flag:
   ccusage daily --help
@@ -63,6 +64,7 @@ For more info, run any command with the `--help` flag:
   ccusage zcode --help
   ccusage claude-science --help
   ccusage openhands --help
+  ccusage dsh --help
 
 OPTIONS:
   -j, --json                           Output in JSON format (default: false)
