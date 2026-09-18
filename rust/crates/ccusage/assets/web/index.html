@@ -146,7 +146,8 @@ button:focus-visible, summary:focus-visible {
 
 .heatmap-scroll {
   overflow-x: auto;
-  padding: 1px 1px 5px;
+  /* Room for the hovered cell's scale(1.22) so it never triggers a scrollbar. */
+  padding: 3px 8px 6px;
   scrollbar-width: thin;
   scrollbar-color: #d8d8d8 transparent;
 }
