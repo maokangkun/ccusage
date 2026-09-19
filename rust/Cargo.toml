@@ -9,7 +9,7 @@ resolver = "2"
 
 # Every workspace crate inherits these, so a version or edition bump is one edit.
 [workspace.package]
-version = "0.0.9"
+version = "0.0.10"
 edition = "2024"
 publish = true
 license = "MIT"
@@ -19,36 +19,36 @@ repository = "https://github.com/maokangkun/ccusage"
 # Shared dependency specs. Crates opt in with `<dep>.workspace = true`, which keeps
 # the per-crate manifests to a list of what that crate actually uses.
 [workspace.dependencies]
-csusage-adapter-all = { path = "crates/ccusage-adapter-all", version = "0.0.9" }
-csusage-adapter-amp = { path = "adapters/amp", version = "0.0.9" }
-csusage-adapter-antigravity = { path = "adapters/antigravity", version = "0.0.9" }
-csusage-adapter-claude = { path = "adapters/claude", version = "0.0.9" }
-csusage-adapter-claude-science = { path = "adapters/claude-science", version = "0.0.9" }
-csusage-adapter-openhands = { path = "adapters/openhands", version = "0.0.9" }
-csusage-adapter-dsh = { path = "adapters/dsh", version = "0.0.9" }
+csusage-adapter-all = { path = "crates/ccusage-adapter-all", version = "0.0.10" }
+csusage-adapter-amp = { path = "adapters/amp", version = "0.0.10" }
+csusage-adapter-antigravity = { path = "adapters/antigravity", version = "0.0.10" }
+csusage-adapter-claude = { path = "adapters/claude", version = "0.0.10" }
+csusage-adapter-claude-science = { path = "adapters/claude-science", version = "0.0.10" }
+csusage-adapter-openhands = { path = "adapters/openhands", version = "0.0.10" }
+csusage-adapter-dsh = { path = "adapters/dsh", version = "0.0.10" }
 zstd = "0.13"
-csusage-adapter-codebuff = { path = "adapters/codebuff", version = "0.0.9" }
-csusage-adapter-codex = { path = "adapters/codex", version = "0.0.9" }
-csusage-adapter-common = { path = "adapters/common", version = "0.0.9" }
-csusage-adapter-copilot = { path = "adapters/copilot", version = "0.0.9" }
-csusage-adapter-droid = { path = "adapters/droid", version = "0.0.9" }
-csusage-adapter-gemini = { path = "adapters/gemini", version = "0.0.9" }
-csusage-adapter-goose = { path = "adapters/goose", version = "0.0.9" }
-csusage-adapter-grok = { path = "adapters/grok", version = "0.0.9" }
-csusage-adapter-hermes = { path = "adapters/hermes", version = "0.0.9" }
-csusage-adapter-kilo = { path = "adapters/kilo", version = "0.0.9" }
-csusage-adapter-kimi = { path = "adapters/kimi", version = "0.0.9" }
-csusage-adapter-openclaw = { path = "adapters/openclaw", version = "0.0.9" }
-csusage-adapter-opencode = { path = "adapters/opencode", version = "0.0.9" }
-csusage-adapter-pi = { path = "adapters/pi", version = "0.0.9" }
-csusage-adapter-qwen = { path = "adapters/qwen", version = "0.0.9" }
-csusage-adapter-zcode = { path = "adapters/zcode", version = "0.0.9" }
-csusage-cli = { path = "crates/ccusage-cli", version = "0.0.9" }
-csusage-cli-parser = { path = "crates/ccusage-cli-parser", version = "0.0.9" }
-csusage-config = { path = "crates/ccusage-config", version = "0.0.9" }
-csusage-core = { path = "crates/ccusage-core", version = "0.0.9" }
-csusage-terminal = { path = "crates/ccusage-terminal", version = "0.0.9" }
-csusage-test-support = { path = "crates/ccusage-test-support", version = "0.0.9" }
+csusage-adapter-codebuff = { path = "adapters/codebuff", version = "0.0.10" }
+csusage-adapter-codex = { path = "adapters/codex", version = "0.0.10" }
+csusage-adapter-common = { path = "adapters/common", version = "0.0.10" }
+csusage-adapter-copilot = { path = "adapters/copilot", version = "0.0.10" }
+csusage-adapter-droid = { path = "adapters/droid", version = "0.0.10" }
+csusage-adapter-gemini = { path = "adapters/gemini", version = "0.0.10" }
+csusage-adapter-goose = { path = "adapters/goose", version = "0.0.10" }
+csusage-adapter-grok = { path = "adapters/grok", version = "0.0.10" }
+csusage-adapter-hermes = { path = "adapters/hermes", version = "0.0.10" }
+csusage-adapter-kilo = { path = "adapters/kilo", version = "0.0.10" }
+csusage-adapter-kimi = { path = "adapters/kimi", version = "0.0.10" }
+csusage-adapter-openclaw = { path = "adapters/openclaw", version = "0.0.10" }
+csusage-adapter-opencode = { path = "adapters/opencode", version = "0.0.10" }
+csusage-adapter-pi = { path = "adapters/pi", version = "0.0.10" }
+csusage-adapter-qwen = { path = "adapters/qwen", version = "0.0.10" }
+csusage-adapter-zcode = { path = "adapters/zcode", version = "0.0.10" }
+csusage-cli = { path = "crates/ccusage-cli", version = "0.0.10" }
+csusage-cli-parser = { path = "crates/ccusage-cli-parser", version = "0.0.10" }
+csusage-config = { path = "crates/ccusage-config", version = "0.0.10" }
+csusage-core = { path = "crates/ccusage-core", version = "0.0.10" }
+csusage-terminal = { path = "crates/ccusage-terminal", version = "0.0.10" }
+csusage-test-support = { path = "crates/ccusage-test-support", version = "0.0.10" }
 assert_fs = "1.1.4"
 compact_str = "0.10.0"
 insta = { version = "1.48.0", features = ["json"] }

@@ -443,7 +443,7 @@ function renderAgentPanel(agents) {
     <td class="num">${fmtInt(agent.inputTokens)}</td><td class="num">${fmtInt(agent.outputTokens)}</td>
     <td class="num">${fmtInt(agent.cacheReadTokens)}</td><td class="num">${fmtInt(agent.cacheWriteTokens)}</td>
     <td class="num">${fmtInt(agent.totalTokens)}</td><td class="num">${fmtCost(agent.costUsd)}</td></tr>`).join('');
-  return `<details class="data-panel">
+  return `<details class="data-panel" open>
     <summary><span class="summary-copy"><span class="section-heading">Agent 明细</span><span class="summary-count">${fmtInt(agents.length)}</span></span><span class="chevron" aria-hidden="true"></span></summary>
     <div class="table-scroll"><table><thead><tr><th>Agent</th><th class="num">输入</th><th class="num">输出</th><th class="num">缓存读</th><th class="num">缓存写</th><th class="num">合计</th><th class="num">成本</th></tr></thead><tbody>${rows}</tbody></table></div>
   </details>`;
@@ -461,7 +461,7 @@ function renderSessionPanel(sessions) {
       <td class="num">${fmtInt(session.totalTokens)}</td><td class="num">${fmtCost(session.costUsd)}</td>
       <td>${escapeHtml((session.models || []).join(', ') || '—')}</td></tr>`;
   }).join('');
-  return `<details class="data-panel">
+  return `<details class="data-panel" open>
     <summary><span class="summary-copy"><span class="section-heading">最近会话</span><span class="summary-count">${fmtInt(visible.length)}</span></span><span class="chevron" aria-hidden="true"></span></summary>
     <div class="table-scroll"><table><thead><tr><th>Agent</th><th>会话</th><th>开始时间</th><th class="num">时长</th><th class="num">合计</th><th class="num">成本</th><th>模型</th></tr></thead><tbody>${rows}</tbody></table></div>
   </details>`;
