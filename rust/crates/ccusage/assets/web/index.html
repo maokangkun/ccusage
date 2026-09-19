@@ -598,7 +598,7 @@ function renderHeatmap() {
         : mode === 'cumulative'
         ? `${key} · 累计 ${fmtInt(cell.value)} tokens`
         : cell.record
-          ? `${key} · ${fmtInt(cell.record.totalTokens)} tokens · ${fmtCost(cell.record.costUsd)}`
+          ? `${key} · ${fmtCompact(cell.record.totalTokens)} tokens · ${fmtCost(cell.record.costUsd)}`
           : `${key} · 无用量`;
       return heatCell(cell.value, maxValue, tip);
     }).join('')}</div>`).join('');
