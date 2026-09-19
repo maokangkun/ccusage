@@ -118,6 +118,9 @@ fn agent_loaders() -> Vec<(&'static str, AgentLoader)> {
         ("openhands", |shared, pricing| {
             adapter::openhands::load_entries(shared, pricing)
         }),
+        ("dsh", |shared, pricing| {
+            adapter::dsh::load_entries(shared, pricing)
+        }),
     ]
 }
 

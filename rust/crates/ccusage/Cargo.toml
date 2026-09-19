@@ -1,6 +1,6 @@
 [package]
 name = "csusage"
-version = "0.4.4"
+version = "0.4.5"
 edition.workspace = true
 build = "build.rs"
 publish.workspace = true
