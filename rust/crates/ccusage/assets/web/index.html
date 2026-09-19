@@ -228,6 +228,8 @@ button:focus-visible, summary:focus-visible {
   user-select: none;
 }
 .data-panel summary::-webkit-details-marker { display: none; }
+.data-panel th.sortable { cursor: pointer; user-select: none; }
+.data-panel th.sortable:hover { color: var(--text); }
 .summary-copy { display: flex; align-items: baseline; gap: 8px; }
 .summary-count { color: var(--faint); font-size: 12px; }
 .chevron {
@@ -425,6 +427,7 @@ function render() {
     </section>
     <section class="details-stack" aria-label="详细用量">
       ${renderAgentPanel(agents)}
+      ${renderModelPanel(Array.isArray(data.models) ? data.models : [])}
       ${renderSessionPanel(sessions)}
     </section>
     <div style="margin-top:18px;text-align:center;color:var(--faint);font-size:11px">数据更新于 ${escapeHtml(generatedAt)}</div>
@@ -446,6 +449,52 @@ function renderAgentPanel(agents) {
   return `<details class="data-panel" open>
     <summary><span class="summary-copy"><span class="section-heading">Agent 明细</span><span class="summary-count">${fmtInt(agents.length)}</span></span><span class="chevron" aria-hidden="true"></span></summary>
     <div class="table-scroll"><table><thead><tr><th>Agent</th><th class="num">输入</th><th class="num">输出</th><th class="num">缓存读</th><th class="num">缓存写</th><th class="num">合计</th><th class="num">成本</th></tr></thead><tbody>${rows}</tbody></table></div>
+  </details>`;
+}
+
+let modelSort = { key: 'totalTokens', desc: true };
+
+function sortModels(key) {
+  if (modelSort.key === key) {
+    modelSort.desc = !modelSort.desc;
+  } else {
+    modelSort = { key, desc: true };
+  }
+  render();
+}
+
+function renderModelPanel(models) {
+  if (!models.length) return '';
+  const columns = [
+    ['model', '模型', ''],
+    ['inputTokens', '输入', 'num'],
+    ['outputTokens', '输出', 'num'],
+    ['cacheReadTokens', '缓存读', 'num'],
+    ['cacheWriteTokens', '缓存写', 'num'],
+    ['totalTokens', '合计', 'num'],
+    ['costUsd', '成本', 'num'],
+    ['sessions', '会话', 'num'],
+  ];
+  const head = columns.map(([key, label, cls]) => {
+    const arrow = modelSort.key === key ? (modelSort.desc ? ' ↓' : ' ↑') : '';
+    return `<th class="sortable ${cls}" onclick="sortModels('${key}')" title="点击排序">${label}${arrow}</th>`;
+  }).join('');
+  const sorted = [...models].sort((a, b) => {
+    const va = a[modelSort.key], vb = b[modelSort.key];
+    const cmp = typeof va === 'string' || typeof vb === 'string'
+      ? String(va).localeCompare(String(vb))
+      : (va || 0) - (vb || 0);
+    return modelSort.desc ? -cmp : cmp;
+  });
+  const rows = sorted.map(m => `
+    <tr><td>${escapeHtml(m.model || '—')}</td>
+    <td class="num">${fmtInt(m.inputTokens)}</td><td class="num">${fmtInt(m.outputTokens)}</td>
+    <td class="num">${fmtInt(m.cacheReadTokens)}</td><td class="num">${fmtInt(m.cacheWriteTokens)}</td>
+    <td class="num">${fmtInt(m.totalTokens)}</td><td class="num">${fmtCost(m.costUsd)}</td>
+    <td class="num">${fmtInt(m.sessions)}</td></tr>`).join('');
+  return `<details class="data-panel" open>
+    <summary><span class="summary-copy"><span class="section-heading">模型明细</span><span class="summary-count">${fmtInt(models.length)}</span></span><span class="chevron" aria-hidden="true"></span></summary>
+    <div class="table-scroll"><table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>
   </details>`;
 }
 

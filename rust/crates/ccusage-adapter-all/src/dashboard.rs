@@ -223,11 +223,15 @@ struct Session {
 fn build_dashboard(entries: &[DashboardEntry]) -> Value {
     let mut days: BTreeMap<String, Totals> = BTreeMap::new();
     let mut agents: BTreeMap<&'static str, Totals> = BTreeMap::new();
+    let mut models: BTreeMap<String, Totals> = BTreeMap::new();
     let mut sessions: BTreeMap<(&'static str, String), Session> = BTreeMap::new();
 
     for entry in entries {
         days.entry(entry.date.clone()).or_default().add(entry);
         agents.entry(entry.agent).or_default().add(entry);
+        if let Some(model) = &entry.model {
+            models.entry(model.clone()).or_default().add(entry);
+        }
         let session = sessions
             .entry((entry.agent, entry.session_id.clone()))
             .or_insert_with(|| Session {
@@ -316,6 +320,22 @@ fn build_dashboard(entries: &[DashboardEntry]) -> Value {
             .date(),
     );
     let (current_streak, longest_streak) = day_streaks(days.keys(), today);
+    let models_json: Vec<Value> = models
+        .iter()
+        .map(|(model, totals)| {
+            json!({
+                "model": model,
+                "inputTokens": totals.input_tokens,
+                "outputTokens": totals.output_tokens,
+                "cacheReadTokens": totals.cache_read_tokens,
+                "cacheWriteTokens": totals.cache_write_tokens,
+                "totalTokens": totals.total_tokens,
+                "costUsd": totals.cost_usd,
+                "sessions": totals.sessions.len(),
+            })
+        })
+        .collect();
+
     let user = std::env::var("USER")
         .or_else(|_| std::env::var("USERNAME"))
         .unwrap_or_else(|_| "user".to_string());
@@ -335,6 +355,7 @@ fn build_dashboard(entries: &[DashboardEntry]) -> Value {
         "currentStreakDays": current_streak,
         "longestStreakDays": longest_streak,
         "agents": agents_json,
+        "models": models_json,
         "days": days_json,
         "sessions": sessions_json,
     })
