@@ -210,7 +210,11 @@ pub(crate) fn read_session_file_data_for_store(
 #[derive(Clone, Copy)]
 enum PiStoreContext<'a> {
     Default,
-    Named { root: &'a Path, name: &'a str },
+    Named {
+        root: &'a Path,
+        #[expect(dead_code)]
+        name: &'a str,
+    },
 }
 
 #[derive(Clone, Copy)]

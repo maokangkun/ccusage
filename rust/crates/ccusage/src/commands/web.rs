@@ -5,7 +5,7 @@ use std::{
     net::{TcpListener, TcpStream},
     process::Command as ProcessCommand,
     sync::Mutex,
-    time::{Duration, SystemTime},
+    time::SystemTime,
 };
 
 use csusage_cli::WebArgs;
@@ -78,16 +78,180 @@ fn handle_connection(mut stream: TcpStream, args: &WebArgs, cache: &RemoteCache)
 
 /// The full dashboard payload: local usage plus one dashboard per remote.
 fn build_usage_payload(args: &WebArgs, cache: &RemoteCache) -> Result<serde_json::Value> {
-    let local = csusage_adapter_all::load_dashboard(&args.shared)?;
-    let mut remotes = serde_json::Map::new();
+    let mut local = csusage_adapter_all::load_dashboard(&args.shared)?;
     for remote in &args.remote {
         let dashboard = cache.fetch(remote);
-        remotes.insert(remote.clone(), dashboard);
+        merge_dashboard(&mut local, &dashboard, remote);
     }
-    Ok(serde_json::json!({
-        "local": local,
-        "remotes": remotes,
-    }))
+    Ok(local)
+}
+
+/// Folds `add` into `base`, aggregating the totals so the web UI renders one
+/// merged dashboard instead of one view per host. Sessions keep a `host` tag
+/// so the recent-sessions table can attribute them.
+fn merge_dashboard(base: &mut serde_json::Value, add: &serde_json::Value, host: &str) {
+    for field in [
+        "totalTokens",
+        "totalInputTokens",
+        "totalOutputTokens",
+        "totalCacheReadTokens",
+        "totalCacheWriteTokens",
+        "totalCostUsd",
+        "totalSessions",
+    ] {
+        if let (Some(target), Some(value)) = (
+            base.get(field).and_then(serde_json::Value::as_i64),
+            add.get(field).and_then(serde_json::Value::as_i64),
+        ) {
+            base[field] = serde_json::json!(target + value);
+            continue;
+        }
+        let (Some(target), Some(value)) = (
+            base.get(field).and_then(serde_json::Value::as_f64),
+            add.get(field).and_then(serde_json::Value::as_f64),
+        ) else {
+            continue;
+        };
+        base[field] = serde_json::json!(target + value);
+    }
+    if let (Some(target), Some(value)) = (
+        base.get("longestSessionMs")
+            .and_then(serde_json::Value::as_i64),
+        add.get("longestSessionMs")
+            .and_then(serde_json::Value::as_i64),
+    ) {
+        base["longestSessionMs"] = serde_json::json!(target.max(value));
+    }
+
+    merge_groups(base, add, "agents", "agent");
+    merge_groups(base, add, "models", "model");
+    merge_groups(base, add, "days", "date");
+    if let (Some(sessions), Some(add_sessions)) = (
+        base.get_mut("sessions")
+            .and_then(serde_json::Value::as_array_mut),
+        add.get("sessions").and_then(serde_json::Value::as_array),
+    ) {
+        for mut session in add_sessions.iter().cloned() {
+            if let Some(session) = session.as_object_mut() {
+                session.insert("host".to_string(), serde_json::json!(host));
+            }
+            sessions.push(session);
+        }
+    }
+    recompute_derived(base);
+}
+
+/// Merges a keyed array (agents / models / days) by summing every numeric field.
+fn merge_groups(base: &mut serde_json::Value, add: &serde_json::Value, group: &str, key: &str) {
+    let Some(add_group) = add.get(group).and_then(serde_json::Value::as_array) else {
+        return;
+    };
+    let Some(base_group) = base
+        .get_mut(group)
+        .and_then(serde_json::Value::as_array_mut)
+    else {
+        return;
+    };
+    for entry in add_group {
+        let Some(entry_key) = entry.get(key).and_then(serde_json::Value::as_str) else {
+            continue;
+        };
+        let Some(target) = base_group.iter_mut().find(|candidate| {
+            candidate.get(key).and_then(serde_json::Value::as_str) == Some(entry_key)
+        }) else {
+            base_group.push(entry.clone());
+            continue;
+        };
+        for (field, value) in entry.as_object().into_iter().flatten() {
+            if let Some(number) = value.as_i64() {
+                let Some(existing) = target
+                    .get(field.as_str())
+                    .and_then(serde_json::Value::as_i64)
+                else {
+                    continue;
+                };
+                target[field.as_str()] = serde_json::json!(existing + number);
+            } else if let (Some(existing), Some(number)) = (
+                target
+                    .get(field.as_str())
+                    .and_then(serde_json::Value::as_f64),
+                value.as_f64(),
+            ) {
+                target[field.as_str()] = serde_json::json!(existing + number);
+            }
+        }
+    }
+}
+
+fn day_key(date: jiff::civil::Date) -> i64 {
+    date.to_zoned(jiff::tz::TimeZone::UTC)
+        .expect("UTC dates are always valid")
+        .timestamp()
+        .as_second()
+        / 86_400
+}
+
+/// Recomputes peakDay and the streak counters over the merged day rows.
+fn recompute_derived(base: &mut serde_json::Value) {
+    let days = base
+        .get("days")
+        .and_then(serde_json::Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+    let dates: Vec<i64> = days
+        .iter()
+        .filter(|day| {
+            day.get("totalTokens")
+                .and_then(serde_json::Value::as_i64)
+                .unwrap_or_default()
+                > 0
+        })
+        .filter_map(|day| day.get("date")?.as_str())
+        .filter_map(|date| date.parse::<jiff::civil::Date>().ok())
+        .map(day_key)
+        .collect::<std::collections::BTreeSet<i64>>()
+        .into_iter()
+        .collect();
+    let (mut longest, mut run, mut previous) = (0, 0, None);
+    for day in dates.iter() {
+        run = if previous.is_some_and(|previous| *day == previous + 1) {
+            run + 1
+        } else {
+            1
+        };
+        previous = Some(*day);
+        longest = longest.max(run);
+    }
+    let today = day_key(
+        jiff::Timestamp::now()
+            .to_zoned(jiff::tz::TimeZone::UTC)
+            .date(),
+    );
+    let mut current = 0;
+    for day in dates.iter().rev() {
+        if *day >= today - 1 {
+            current += 1;
+        } else {
+            break;
+        }
+    }
+    base["currentStreakDays"] = serde_json::json!(current);
+    base["longestStreakDays"] = serde_json::json!(longest);
+    base["peakDay"] = days
+        .iter()
+        .filter(|day| {
+            day.get("totalTokens")
+                .and_then(serde_json::Value::as_i64)
+                .unwrap_or_default()
+                > 0
+        })
+        .max_by_key(|day| {
+            day.get("totalTokens")
+                .and_then(serde_json::Value::as_i64)
+                .unwrap_or_default()
+        })
+        .cloned()
+        .unwrap_or_default();
 }
 
 /// Caches the SSH-fetched remote dashboards so page refreshes do not open a
@@ -145,4 +309,96 @@ fn fetch_remote_dashboard(remote: &str) -> serde_json::Value {
 
 fn remote_error(message: String) -> serde_json::Value {
     serde_json::json!({ "error": message })
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::merge_dashboard;
+
+    fn dashboard(agent_tokens: i64, dates: &[&str]) -> serde_json::Value {
+        json!({
+            "user": "tester",
+            "totalTokens": agent_tokens,
+            "totalInputTokens": agent_tokens,
+            "totalOutputTokens": 10,
+            "totalCacheReadTokens": 0,
+            "totalCacheWriteTokens": 0,
+            "totalCostUsd": 1.5,
+            "totalSessions": 1,
+            "longestSessionMs": 3600_000,
+            "currentStreakDays": 1,
+            "longestStreakDays": 1,
+            "agents": [
+                {"agent": "claude", "inputTokens": agent_tokens, "outputTokens": 10,
+                 "cacheReadTokens": 0, "cacheWriteTokens": 0, "totalTokens": agent_tokens + 10,
+                 "costUsd": 1.5, "sessions": 1},
+                {"agent": "dsh", "inputTokens": 5, "outputTokens": 0,
+                 "cacheReadTokens": 0, "cacheWriteTokens": 0, "totalTokens": 5,
+                 "costUsd": 0.0, "sessions": 1}
+            ],
+            "models": [
+                {"model": "glm-5.3", "inputTokens": agent_tokens, "outputTokens": 10,
+                 "totalTokens": agent_tokens + 10, "costUsd": 1.5, "sessions": 1}
+            ],
+            "days": dates
+                .iter()
+                .map(|date| json!({
+                    "date": date,
+                    "inputTokens": agent_tokens,
+                    "outputTokens": 10,
+                    "cacheReadTokens": 0,
+                    "cacheWriteTokens": 0,
+                    "totalTokens": agent_tokens + 10,
+                    "costUsd": 1.5,
+                    "sessions": 1
+                }))
+                .collect::<Vec<_>>(),
+            "sessions": [
+                {"agent": "claude", "sessionId": "s1", "totalTokens": agent_tokens + 10, "costUsd": 1.5}
+            ],
+        })
+    }
+
+    #[test]
+    fn merge_dashboard_sums_totals_and_groups() {
+        let mut base = dashboard(100, &["2026-01-01"]);
+        let remote = dashboard(50, &["2026-01-01", "2026-01-02"]);
+        merge_dashboard(&mut base, &remote, "macmini");
+
+        assert_eq!(base["totalTokens"], json!(150));
+        assert_eq!(base["totalSessions"], json!(2));
+        assert_eq!(base["totalCostUsd"], json!(3.0));
+        assert_eq!(base["longestSessionMs"], json!(3600_000));
+
+        let agents = base["agents"].as_array().unwrap();
+        let claude = agents
+            .iter()
+            .find(|entry| entry["agent"] == "claude")
+            .unwrap();
+        assert_eq!(claude["inputTokens"], json!(150));
+        let dsh = agents.iter().find(|entry| entry["agent"] == "dsh").unwrap();
+        assert_eq!(dsh["inputTokens"], json!(10));
+        assert_eq!(dsh["sessions"], json!(2));
+
+        let days = base["days"].as_array().unwrap();
+        assert_eq!(days.len(), 2);
+        assert_eq!(days[0]["date"], json!("2026-01-01"));
+        assert_eq!(days[0]["inputTokens"], json!(150));
+        assert_eq!(days[1]["date"], json!("2026-01-02"));
+        assert_eq!(days[1]["inputTokens"], json!(50));
+
+        let models = base["models"].as_array().unwrap();
+        assert_eq!(models.len(), 1);
+        assert_eq!(models[0]["totalTokens"], json!(170));
+
+        let sessions = base["sessions"].as_array().unwrap();
+        assert_eq!(sessions.len(), 2);
+        assert_eq!(sessions[1]["host"], json!("macmini"));
+
+        assert_eq!(base["currentStreakDays"], json!(0));
+        assert_eq!(base["longestStreakDays"], json!(2));
+        assert_eq!(base["peakDay"]["date"], json!("2026-01-01"));
+    }
 }

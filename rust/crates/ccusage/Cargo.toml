@@ -1,6 +1,6 @@
 [package]
 name = "csusage"
-version = "0.4.10"
+version = "0.4.11"
 edition.workspace = true
 build = "build.rs"
 publish.workspace = true
@@ -18,6 +18,7 @@ fetch-litellm-pricing = ["csusage-core/fetch-litellm-pricing"]
 
 [dependencies]
 csusage-adapter-all.workspace = true
+jiff.workspace = true
 csusage-adapter-amp.workspace = true
 csusage-adapter-antigravity.workspace = true
 csusage-adapter-claude.workspace = true
