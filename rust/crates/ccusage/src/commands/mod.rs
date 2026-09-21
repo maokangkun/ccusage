@@ -308,6 +308,15 @@ pub(crate) fn run_blocks(args: BlocksArgs) -> Result<()> {
     Ok(())
 }
 
+pub(crate) fn run_dashboard(args: csusage_cli::SharedArgs) -> crate::Result<()> {
+    let dashboard = csusage_adapter_all::load_dashboard(&args)?;
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&dashboard).unwrap_or_default()
+    );
+    Ok(())
+}
+
 pub(crate) fn run_web(args: WebArgs) -> Result<()> {
     web::run_web(args)
 }

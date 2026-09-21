@@ -57,7 +57,11 @@ fn window_target(cli: &mut Cli) -> Option<(&mut SharedArgs, PeriodUnit, WeekDay)
             | Command::Dsh(args),
         ) => agent_window_target(args),
         Some(
-            Command::Session(_) | Command::Blocks(_) | Command::Statusline(_) | Command::Web(_),
+            Command::Session(_)
+            | Command::Blocks(_)
+            | Command::Statusline(_)
+            | Command::Web(_)
+            | Command::Dashboard(_),
         ) => None,
     }
 }

@@ -145,6 +145,10 @@ fn cli_snapshot(cli: Cli) -> Value {
 
 fn command_snapshot(command: Option<Command>) -> Value {
     match command {
+        Some(Command::Dashboard(shared)) => json!({
+            "type": "dashboard",
+            "shared": shared_snapshot(&shared),
+        }),
         None => Value::Null,
         Some(Command::All(args)) => agent_command_snapshot("all", args),
         Some(Command::Daily(args)) => json!({
@@ -977,7 +981,7 @@ fn snapshots_cli_parse_error_guidance() {
 
 #[test]
 fn cargo_version_is_independent_from_release_version() {
-    assert_eq!(env!("CARGO_PKG_VERSION"), "0.0.13");
+    assert_eq!(env!("CARGO_PKG_VERSION"), "0.0.14");
 }
 
 #[test]

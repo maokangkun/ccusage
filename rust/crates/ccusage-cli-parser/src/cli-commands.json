@@ -46,6 +46,10 @@
 				"description": "Serve a local web UI dashboard"
 			},
 			{
+				"name": "dashboard",
+				"description": "Dump the aggregated dashboard payload as JSON"
+			},
+			{
 				"name": "claude",
 				"description": "Show Claude Code usage commands"
 			},
@@ -172,6 +176,12 @@
 			"path": ["web"],
 			"description": "Serve the local web UI usage dashboard",
 			"usage": "ccusage web <OPTIONS>",
+			"options": "web_options"
+		},
+		{
+			"path": ["dashboard"],
+			"description": "Dump the aggregated dashboard payload as JSON",
+			"usage": "ccusage dashboard <OPTIONS>",
 			"options": "web_options"
 		},
 		{

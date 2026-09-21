@@ -212,11 +212,25 @@ fn parse_command(
             }
             Ok(Command::Blocks(args))
         }
+        "dashboard" => {
+            let mut shared_extra = shared.clone();
+            shared_extra.json = true;
+            while parser.peek().is_some() {
+                if !parse_shared_arg_for_command(parser, &mut shared_extra)? {
+                    return Err(format!(
+                        "Unknown dashboard option '{}'",
+                        parser.next_flag()?
+                    ));
+                }
+            }
+            Ok(Command::Dashboard(shared_extra))
+        }
         "web" => {
             let mut args = WebArgs {
                 shared,
                 host: "127.0.0.1".to_string(),
                 port: 8080,
+                remote: Vec::new(),
             };
             while parser.peek().is_some() {
                 if parse_shared_arg_for_command(parser, &mut args.shared)? {
@@ -231,6 +245,14 @@ fn parse_command(
                     }
                     "-H" | "--host" => {
                         args.host = parser.value_for("--host")?;
+                    }
+                    "-r" | "--remote" => {
+                        for host in parser.value_for("--remote")?.split(',') {
+                            let host = host.trim();
+                            if !host.is_empty() {
+                                args.remote.push(host.to_string());
+                            }
+                        }
                     }
                     flag => return Err(format!("Unknown web option '{flag}'")),
                 }
@@ -812,6 +834,7 @@ fn is_command(arg: &str) -> bool {
             | "blocks"
             | "statusline"
             | "web"
+            | "dashboard"
             | "claude"
             | "codex"
             | "opencode"
@@ -1106,6 +1129,7 @@ fn last_option_error(command: Option<&Command>, root_shared: &SharedArgs) -> Opt
         Some(Command::Session(args)) => (&args.shared, false),
         Some(Command::Blocks(args)) => (&args.shared, false),
         Some(Command::Web(args)) => (&args.shared, false),
+        Some(Command::Dashboard(args)) => (args, false),
         Some(Command::Statusline(_)) => (root_shared, false),
         Some(
             Command::Codex(args)

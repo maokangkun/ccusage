@@ -12,6 +12,7 @@ pub enum Command {
     Blocks(BlocksArgs),
     Statusline(StatuslineArgs),
     Web(WebArgs),
+    Dashboard(SharedArgs),
     Codex(AgentCommandArgs),
     OpenCode(AgentCommandArgs),
     Amp(AgentCommandArgs),
@@ -159,6 +160,8 @@ pub struct WebArgs {
     pub shared: SharedArgs,
     pub host: String,
     pub port: u16,
+    /// SSH hosts (ssh-config aliases) whose usage dashboards to include.
+    pub remote: Vec<String>,
 }
 
 #[derive(Clone)]

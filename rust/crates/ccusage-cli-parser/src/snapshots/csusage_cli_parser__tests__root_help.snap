@@ -14,6 +14,7 @@ COMMANDS:
   blocks                     Show usage report grouped by session billing blocks
   statusline                 Display compact status line for Claude Code hooks with hybrid time+file caching (Beta)
   web                        Serve a local web UI dashboard
+  dashboard                  Dump the aggregated dashboard payload as JSON
   claude                     Show Claude Code usage commands
   codex                      Show Codex token usage commands
   opencode                   Show OpenCode token usage commands
@@ -44,6 +45,7 @@ For more info, run any command with the `--help` flag:
   ccusage blocks --help
   ccusage statusline --help
   ccusage web --help
+  ccusage dashboard --help
   ccusage claude --help
   ccusage codex --help
   ccusage opencode --help

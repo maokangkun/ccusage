@@ -228,6 +228,10 @@ button:focus-visible, summary:focus-visible {
   user-select: none;
 }
 .data-panel summary::-webkit-details-marker { display: none; }
+.host-tabs { display: flex; gap: 8px; margin: 0 0 14px; }
+.host-tabs button { border: 1px solid var(--line); background: transparent; color: #777; padding: 6px 16px; border-radius: 999px; cursor: pointer; font-size: 13px; }
+.host-tabs button.active { color: var(--text); font-weight: 600; }
+.host-tabs button:hover { color: var(--text); }
 .data-panel th.sortable { cursor: pointer; user-select: none; }
 .data-panel th.sortable:hover { color: var(--text); }
 .summary-copy { display: flex; align-items: baseline; gap: 8px; }
@@ -374,6 +378,30 @@ function initials(name) {
   return (clean.length <= 3 ? clean.slice(0, 2) : clean.slice(0, 1)).toUpperCase();
 }
 
+let selectedHost = 'local';
+
+function currentHostData() {
+  if (data.local) {
+    if (selectedHost === 'local') return data.local;
+    return (data.remotes || {})[selectedHost] || {error: '未找到主机 ' + selectedHost};
+  }
+  return data;
+}
+
+function hostNames() {
+  if (!data.local) return [];
+  return ['local', ...Object.keys(data.remotes || {})];
+}
+
+function hostLabel(name) {
+  return name === 'local' ? '本机' : name;
+}
+
+function selectHost(name) {
+  selectedHost = name;
+  render();
+}
+
 async function main() {
   try {
     const response = await fetch('/api/usage', {headers: {'Accept': 'application/json'}});
@@ -389,6 +417,15 @@ async function main() {
 }
 
 function render() {
+  const data = currentHostData();
+  if (data.error) {
+    const app = document.getElementById('app');
+    app.className = 'error-state';
+    app.innerHTML = `<div><strong>${escapeHtml(data.error)}</strong><button class="retry" onclick="location.reload()">重试</button></div>`;
+    return;
+  }
+  const hosts = hostNames();
+  const tabs = hosts.length > 1 ? `<div class="host-tabs">${hosts.map(name => `<button class="${name === selectedHost ? 'active' : ''}" onclick="selectHost('${escapeHtml(name)}')">${escapeHtml(hostLabel(name))}</button>`).join('')}</div>` : '';
   const user = String(data.user || 'user');
   const agents = Array.isArray(data.agents) ? data.agents : [];
   const sessions = Array.isArray(data.sessions) ? data.sessions : [];
@@ -407,6 +444,7 @@ function render() {
         <span>${fmtCost(data.totalCostUsd)}</span>
       </div>
     </header>
+    ${tabs}
     <section class="stats" aria-label="用量概览">
       ${stat(fmtCompact(data.totalTokens), '累计 Token 数', `输入 ${fmtInt(data.totalInputTokens)}，输出 ${fmtInt(data.totalOutputTokens)}`)}
       ${stat(fmtCompact(peak.totalTokens), '峰值 Token 数', peak.date || '')}
@@ -538,7 +576,7 @@ function activityRange() {
 function renderHeatmap() {
   const {start} = activityRange();
   const today = utcDate(new Date());
-  const daysByDate = new Map((data.days || []).map(day => [String(day.date), day]));
+  const daysByDate = new Map((currentHostData().days || []).map(day => [String(day.date), day]));
   const columns = [];
   const weeklyTotals = new Map();
   let cumulative = 0;
