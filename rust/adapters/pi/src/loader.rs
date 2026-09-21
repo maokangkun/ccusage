@@ -1234,6 +1234,6 @@ mod tests {
                 .count(),
             1
         );
-        assert_eq!(entries[1].model.as_deref(), Some("[omp] gpt-5"));
+        assert_eq!(entries[1].model.as_deref(), Some("gpt-5"));
     }
 }

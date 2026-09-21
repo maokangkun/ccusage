@@ -827,7 +827,7 @@ mod tests {
         assert_eq!(entries[0].date, "2026-04-22");
         assert_eq!(entries[0].project.as_ref(), "project-a");
         assert_eq!(entries[0].session_id.as_ref(), "session-a");
-        assert_eq!(entries[0].model.as_deref(), Some("[pi] gpt-5.4"));
+        assert_eq!(entries[0].model.as_deref(), Some("gpt-5.4"));
         assert_eq!(entries[0].data.message.usage.input_tokens, 100);
         assert_eq!(entries[0].data.message.usage.output_tokens, 50);
         assert_eq!(

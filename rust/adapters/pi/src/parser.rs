@@ -347,9 +347,7 @@ fn read_session_file_data_with_context(
         }
         let raw_model = message.model.clone();
         let display_cost = usage_value.cost.as_ref().and_then(|cost| cost.total);
-        let model = raw_model
-            .as_ref()
-            .map(|model| format!("[{}] {model}", context.store_name()));
+        let model = raw_model.clone();
         let cost = context.cost(
             PiCostInput {
                 raw_model: raw_model.as_deref(),
@@ -718,11 +716,11 @@ mod tests {
         let mut pricing = PricingMap::default();
         pricing.load_json(
             r#"{
-                "[pi] test-model": {
+                "test-model": {
                     "input_cost_per_token": 0.000002,
                     "output_cost_per_token": 0.000008
                 },
-                "[omp] test-model": {
+                "test-model (2)": {
                     "input_cost_per_token": 0.000002,
                     "output_cost_per_token": 0.000008
                 }
@@ -767,7 +765,7 @@ mod tests {
         assert_eq!(entries.len(), 1);
         assert_eq!(
             entries[0].missing_pricing_model.as_deref(),
-            Some("[pi] unknown-model-xyz")
+            Some("unknown-model-xyz")
         );
     }
 
@@ -841,7 +839,7 @@ mod tests {
     }
 
     #[test]
-    fn named_store_prefixed_pricing_override_wins_before_unprefixed_lookup() {
+    fn named_store_models_are_priced_without_a_prefix() {
         let fixture = fs_fixture!({
             "sessions/project-a/agent_session-a.jsonl": r#"{"type":"message","timestamp":"2026-01-02T00:00:00.000Z","message":{"role":"assistant","model":"gpt-5.4","usage":{"input":1000,"output":2000}}}"#,
         });
@@ -850,10 +848,6 @@ mod tests {
         pricing.load_json(
             r#"{
                 "gpt-5.4": {
-                    "input_cost_per_token": 0.001,
-                    "output_cost_per_token": 0.001
-                },
-                "[omp] gpt-5.4": {
                     "input_cost_per_token": 0.000002,
                     "output_cost_per_token": 0.000008
                 }
@@ -938,11 +932,8 @@ mod tests {
         .unwrap();
 
         assert_eq!(entries.len(), 1);
-        assert_eq!(entries[0].model.as_deref(), Some("[omp] gpt-5"));
-        assert_eq!(
-            entries[0].data.message.model.as_deref(),
-            Some("[omp] gpt-5")
-        );
+        assert_eq!(entries[0].model.as_deref(), Some("gpt-5"));
+        assert_eq!(entries[0].data.message.model.as_deref(), Some("gpt-5"));
     }
 
     #[test]
@@ -1026,8 +1017,8 @@ mod tests {
                 PiCostInput {
                     raw_model: Some("test-model"),
                     display_model: Some(match context {
-                        PiStoreContext::Default => "[pi] test-model",
-                        PiStoreContext::Named { .. } => "[omp] test-model",
+                        PiStoreContext::Default => "test-model",
+                        PiStoreContext::Named { .. } => "test-model",
                     }),
                     usage,
                     display_cost: Some(f64::NAN),
@@ -1042,8 +1033,8 @@ mod tests {
                 PiCostInput {
                     raw_model: Some("test-model"),
                     display_model: Some(match context {
-                        PiStoreContext::Default => "[pi] test-model",
-                        PiStoreContext::Named { .. } => "[omp] test-model",
+                        PiStoreContext::Default => "test-model",
+                        PiStoreContext::Named { .. } => "test-model",
                     }),
                     usage,
                     display_cost: Some(f64::INFINITY),
@@ -1058,8 +1049,8 @@ mod tests {
                 PiCostInput {
                     raw_model: Some("test-model"),
                     display_model: Some(match context {
-                        PiStoreContext::Default => "[pi] test-model",
-                        PiStoreContext::Named { .. } => "[omp] test-model",
+                        PiStoreContext::Default => "test-model",
+                        PiStoreContext::Named { .. } => "test-model",
                     }),
                     usage,
                     display_cost: Some(f64::NEG_INFINITY),
@@ -1087,7 +1078,7 @@ mod tests {
         assert_eq!(default_entry.cost, 0.0);
         assert_eq!(
             default_entry.missing_pricing_model.as_deref(),
-            Some("[pi] unknown-model")
+            Some("unknown-model")
         );
 
         let named_entry = read_session_file_for_store(
