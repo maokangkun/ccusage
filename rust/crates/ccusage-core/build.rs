@@ -111,7 +111,7 @@ fn litellm_pricing_url() -> std::io::Result<String> {
         Ok(flake_lock) => flake_lock,
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
             return Ok(format!(
-                "https://raw.githubusercontent.com/BerriAI/litellm/8a4fae0e174799ce2d3858a55473be0d6247a2a4/{LITELLM_PRICING_JSON}"
+                "https://raw.githubusercontent.com/BerriAI/litellm/25af172b854219ebe39c67db1d479ddb7b744548/{LITELLM_PRICING_JSON}"
             ));
         }
         Err(error) => return Err(error),

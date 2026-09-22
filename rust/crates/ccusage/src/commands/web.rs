@@ -16,7 +16,8 @@ const INDEX_HTML: &str = include_str!("../../assets/web/index.html");
 
 /// Runs on the remote host: the standard Homebrew prefixes are seeded
 /// explicitly because non-interactive login shells usually miss them.
-const REMOTE_PULL_SCRIPT: &str = "export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:$PATH\ncsusage dashboard --json\n";
+const REMOTE_PULL_SCRIPT: &str =
+    "export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:$PATH\ncsusage dashboard --json\n";
 const REMOTE_CACHE_SECONDS: u64 = 60;
 
 /// Runs the web UI server until interrupted.
@@ -315,7 +316,7 @@ fn fetch_remote_dashboard(remote: &str) -> serde_json::Value {
                 status: std::process::ExitStatus::default(),
                 stdout: Vec::new(),
                 stderr: format!("failed to spawn ssh: {error}").into_bytes(),
-            }
+            };
         });
     let output = output;
     if !output.status.success() {
