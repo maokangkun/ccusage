@@ -287,9 +287,9 @@ fn fetch_remote_dashboard(remote: &str) -> serde_json::Value {
         .arg("ConnectTimeout=10")
         .arg("--")
         .arg(remote)
-        .arg("csusage")
-        .arg("dashboard")
-        .arg("--json")
+        .arg("sh")
+        .arg("-lc")
+        .arg("csusage dashboard --json")
         .output();
     let Ok(output) = output else {
         return remote_error("failed to spawn ssh".to_string());
