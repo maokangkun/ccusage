@@ -298,6 +298,8 @@ fn fetch_remote_dashboard(remote: &str) -> serde_json::Value {
         .arg("sh")
         .arg("-ls")
         .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
         .spawn()
         .and_then(|mut child| {
             use std::io::Write as _;
