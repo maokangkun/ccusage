@@ -289,7 +289,9 @@ fn fetch_remote_dashboard(remote: &str) -> serde_json::Value {
         .arg(remote)
         .arg("sh")
         .arg("-lc")
-        .arg("csusage dashboard --json")
+        .arg(
+            "export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:$PATH;              csusage dashboard --json",
+        )
         .output();
     let Ok(output) = output else {
         return remote_error("failed to spawn ssh".to_string());
