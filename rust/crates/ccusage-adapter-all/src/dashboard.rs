@@ -53,7 +53,7 @@ fn load_entries_all_agents(shared: &SharedArgs) -> Result<Vec<DashboardEntry>> {
     // Codex does not go through LoadedEntry; load its events separately.
     let (events, _) = adapter::codex::load_codex_events_with_detection(&shared)?;
     for event in events {
-        entries.push(codex_entry(&event, timezone));
+        entries.push(codex_entry(&event, timezone, &pricing));
     }
     entries.sort_by_key(|entry| entry.timestamp_ms);
     Ok(entries)
@@ -143,6 +143,7 @@ fn push_entry(entries: &mut Vec<DashboardEntry>, agent: &'static str, entry: Loa
 fn codex_entry(
     event: &adapter::codex::CodexTokenUsageEvent,
     timezone: Option<&jiff::tz::TimeZone>,
+    pricing: &PricingMap,
 ) -> DashboardEntry {
     let timestamp_ms = parse_ts_timestamp(&event.timestamp)
         .map(|timestamp| timestamp.as_millis())
@@ -170,7 +171,7 @@ fn codex_entry(
             None,
             Some(TimestampMs::from_millis(timestamp_ms)),
             csusage_core::cli::CostMode::Auto,
-            None,
+            Some(pricing),
         ),
     }
 }

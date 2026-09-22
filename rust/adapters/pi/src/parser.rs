@@ -227,6 +227,7 @@ struct PiCostInput<'a> {
 }
 
 impl<'a> PiStoreContext<'a> {
+    #[allow(dead_code)] // kept for the store's diagnostic output
     fn store_name(self) -> &'a str {
         match self {
             Self::Default => "pi",

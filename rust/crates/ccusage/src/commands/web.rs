@@ -269,10 +269,10 @@ struct RemoteCache {
 impl RemoteCache {
     fn fetch(&self, remote: &str) -> serde_json::Value {
         let mut entries = self.entries.lock().unwrap();
-        if let Some((fetched_at, dashboard)) = entries.get(remote) {
-            if fetched_at.elapsed().unwrap_or_default().as_secs() < REMOTE_CACHE_SECONDS {
-                return dashboard.clone();
-            }
+        if let Some((fetched_at, dashboard)) = entries.get(remote)
+            && fetched_at.elapsed().unwrap_or_default().as_secs() < REMOTE_CACHE_SECONDS
+        {
+            return dashboard.clone();
         }
         let dashboard = fetch_remote_dashboard(remote);
         entries.insert(remote.to_string(), (SystemTime::now(), dashboard.clone()));
@@ -311,14 +311,11 @@ fn fetch_remote_dashboard(remote: &str) -> serde_json::Value {
             drop(child.stdin.take());
             child.wait_with_output()
         })
-        .unwrap_or_else(|error| {
-            return std::process::Output {
-                status: std::process::ExitStatus::default(),
-                stdout: Vec::new(),
-                stderr: format!("failed to spawn ssh: {error}").into_bytes(),
-            };
+        .unwrap_or_else(|error| std::process::Output {
+            status: std::process::ExitStatus::default(),
+            stdout: Vec::new(),
+            stderr: format!("failed to spawn ssh: {error}").into_bytes(),
         });
-    let output = output;
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
         return remote_error(format!(
@@ -352,7 +349,7 @@ mod tests {
             "totalCacheWriteTokens": 0,
             "totalCostUsd": 1.5,
             "totalSessions": 1,
-            "longestSessionMs": 3600_000,
+            "longestSessionMs": 3_600_000,
             "currentStreakDays": 1,
             "longestStreakDays": 1,
             "agents": [
@@ -395,7 +392,7 @@ mod tests {
         assert_eq!(base["totalTokens"], json!(150));
         assert_eq!(base["totalSessions"], json!(2));
         assert_eq!(base["totalCostUsd"], json!(3.0));
-        assert_eq!(base["longestSessionMs"], json!(3600_000));
+        assert_eq!(base["longestSessionMs"], json!(3_600_000));
 
         let agents = base["agents"].as_array().unwrap();
         let claude = agents
