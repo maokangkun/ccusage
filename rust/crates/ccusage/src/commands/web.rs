@@ -3,7 +3,7 @@
 use std::{
     io::{Read, Write},
     net::{TcpListener, TcpStream},
-    process::Command as ProcessCommand,
+    process::{Command as ProcessCommand, Stdio},
     sync::Mutex,
     time::SystemTime,
 };
@@ -13,6 +13,10 @@ use csusage_cli::WebArgs;
 use crate::Result;
 
 const INDEX_HTML: &str = include_str!("../../assets/web/index.html");
+
+/// Runs on the remote host: the standard Homebrew prefixes are seeded
+/// explicitly because non-interactive login shells usually miss them.
+const REMOTE_PULL_SCRIPT: &str = "export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:$PATH\ncsusage dashboard --json\n";
 const REMOTE_CACHE_SECONDS: u64 = 60;
 
 /// Runs the web UI server until interrupted.
@@ -280,6 +284,10 @@ impl RemoteCache {
 /// The remote machine must have `csusage` installed; its `dashboard` command
 /// emits the same JSON the local web UI serves.
 fn fetch_remote_dashboard(remote: &str) -> serde_json::Value {
+    // SSH joins its arguments with spaces and hands them to the remote
+    // login shell, so argument boundaries do not survive the hop. Feed the
+    // script via stdin (`sh -ls` reads commands from stdin as a login
+    // shell) to avoid any quoting surprises.
     let output = ProcessCommand::new("ssh")
         .arg("-o")
         .arg("BatchMode=yes")
@@ -288,14 +296,26 @@ fn fetch_remote_dashboard(remote: &str) -> serde_json::Value {
         .arg("--")
         .arg(remote)
         .arg("sh")
-        .arg("-lc")
-        .arg(
-            "export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:$PATH;              csusage dashboard --json",
-        )
-        .output();
-    let Ok(output) = output else {
-        return remote_error("failed to spawn ssh".to_string());
-    };
+        .arg("-ls")
+        .stdin(Stdio::piped())
+        .spawn()
+        .and_then(|mut child| {
+            use std::io::Write as _;
+            if let Some(stdin) = child.stdin.as_mut() {
+                let _ = stdin.write_all(REMOTE_PULL_SCRIPT.as_bytes());
+                let _ = stdin.flush();
+            }
+            drop(child.stdin.take());
+            child.wait_with_output()
+        })
+        .unwrap_or_else(|error| {
+            return std::process::Output {
+                status: std::process::ExitStatus::default(),
+                stdout: Vec::new(),
+                stderr: format!("failed to spawn ssh: {error}").into_bytes(),
+            }
+        });
+    let output = output;
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
         return remote_error(format!(

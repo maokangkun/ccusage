@@ -196,7 +196,7 @@ checksum = "a31eee39dddec8330830986fcd7625edb5a24ec90ea038215273bbc3adb08ac6"
 
 [[package]]
 name = "csusage"
-version = "0.4.13"
+version = "0.4.14"
 dependencies = [
  "csusage-adapter-all",
  "csusage-adapter-amp",
@@ -237,7 +237,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-all"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-amp",
  "csusage-adapter-antigravity",
@@ -273,7 +273,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-amp"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -285,7 +285,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-antigravity"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -298,7 +298,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-claude"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -312,7 +312,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-claude-science"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -325,7 +325,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-codebuff"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -336,7 +336,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-codex"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "compact_str",
  "csusage-adapter-common",
@@ -352,7 +352,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-common"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-core",
  "csusage-test-support",
@@ -362,7 +362,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-copilot"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -374,7 +374,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-droid"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -385,7 +385,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-dsh"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "assert_fs",
  "csusage-adapter-common",
@@ -399,7 +399,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-gemini"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -411,7 +411,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-goose"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -424,7 +424,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-grok"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -436,7 +436,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-hermes"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -448,7 +448,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-kilo"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -461,7 +461,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-kimi"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -473,7 +473,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-openclaw"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-cli",
@@ -486,7 +486,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-opencode"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -500,7 +500,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-openhands"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "assert_fs",
  "csusage-adapter-common",
@@ -513,7 +513,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-pi"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -525,7 +525,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-qwen"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -537,7 +537,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-adapter-zcode"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-adapter-common",
  "csusage-core",
@@ -550,11 +550,11 @@ dependencies = [
 
 [[package]]
 name = "csusage-cli"
-version = "0.0.17"
+version = "0.0.18"
 
 [[package]]
 name = "csusage-cli-parser"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-cli",
  "csusage-config",
@@ -566,7 +566,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-config"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-cli",
  "csusage-core",
@@ -579,7 +579,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-core"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "csusage-cli",
  "csusage-terminal",
@@ -597,7 +597,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-terminal"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "insta",
  "terminal_size",
@@ -606,7 +606,7 @@ dependencies = [
 
 [[package]]
 name = "csusage-test-support"
-version = "0.0.17"
+version = "0.0.18"
 dependencies = [
  "assert_fs",
  "jiff",
