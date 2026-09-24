@@ -154,14 +154,24 @@ fn codex_entry(
         timestamp_ms,
         date: format_date_tz(TimestampMs::from_millis(timestamp_ms), timezone),
         model: event.model.clone(),
-        input_tokens: event.input_tokens,
+        // Codex reports `input_tokens` inclusive of cached input; the CLI
+        // rows expose the non-cached portion, so match that here.
+        input_tokens: event.input_tokens.saturating_sub(
+            event
+                .cached_input_tokens
+                .saturating_add(event.cache_creation_tokens),
+        ),
         output_tokens: event.output_tokens,
         cache_read_tokens: event.cached_input_tokens,
         cache_write_tokens: event.cache_creation_tokens,
         cost_usd: calculate_cost_for_usage_at(
             event.model.as_deref(),
             csusage_core::TokenUsageRaw {
-                input_tokens: event.input_tokens,
+                input_tokens: event.input_tokens.saturating_sub(
+                    event
+                        .cached_input_tokens
+                        .saturating_add(event.cache_creation_tokens),
+                ),
                 output_tokens: event.output_tokens,
                 cache_creation_input_tokens: event.cache_creation_tokens,
                 cache_read_input_tokens: event.cached_input_tokens,
