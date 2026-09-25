@@ -3,8 +3,8 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use csusage_core::{
-    LoadedEntry, PricingMap, Result, TimestampMs, calculate_cost_for_usage_at, cli::SharedArgs,
-    format_date_tz, parse_ts_timestamp, parse_tz,
+    LoadedEntry, PricingMap, Result, TimestampMs, cli::SharedArgs, format_date_tz,
+    parse_ts_timestamp, parse_tz,
 };
 use serde_json::{Value, json};
 
@@ -26,12 +26,23 @@ struct DashboardEntry {
 }
 
 /// Loads usage from every agent and aggregates it into the dashboard JSON.
-pub fn load_dashboard(shared: &SharedArgs) -> Result<Value> {
-    let entries = load_entries_all_agents(shared)?;
-    Ok(build_dashboard(&entries))
+/// Codex costs aggregated through the same codex aggregation the CLI report
+/// rows use. Per-event pricing cannot reproduce long-context tiers, the speed
+/// policy, or model aliases, so the dashboard adds these tables on top of the
+/// per-event totals (whose codex cost is zero).
+#[derive(Default)]
+pub struct CodexCostTables {
+    pub day: BTreeMap<String, f64>,
+    pub model: BTreeMap<String, f64>,
+    pub session: BTreeMap<String, f64>,
 }
 
-fn load_entries_all_agents(shared: &SharedArgs) -> Result<Vec<DashboardEntry>> {
+pub fn load_dashboard(shared: &SharedArgs) -> Result<Value> {
+    let (entries, codex_costs) = load_entries_all_agents(shared)?;
+    Ok(build_dashboard(&entries, &codex_costs))
+}
+
+fn load_entries_all_agents(shared: &SharedArgs) -> Result<(Vec<DashboardEntry>, CodexCostTables)> {
     // Suppress per-agent progress output; the web UI reports load state itself.
     let shared = SharedArgs {
         json: true,
@@ -52,11 +63,48 @@ fn load_entries_all_agents(shared: &SharedArgs) -> Result<Vec<DashboardEntry>> {
     }
     // Codex does not go through LoadedEntry; load its events separately.
     let (events, _) = adapter::codex::load_codex_events_with_detection(&shared)?;
-    for event in events {
-        entries.push(codex_entry(&event, timezone, &pricing));
+    for event in &events {
+        entries.push(codex_entry(event, timezone));
     }
+    let codex_costs = codex_cost_tables(&events, shared.timezone.as_deref(), timezone, &pricing);
     entries.sort_by_key(|entry| entry.timestamp_ms);
-    Ok(entries)
+    Ok((entries, codex_costs))
+}
+
+/// Aggregates codex events exactly like the CLI report rows and prices each
+/// group with the codex-specific cost calculator (long-context tiers, speed
+/// policy, recorded fast/standard usage).
+fn codex_cost_tables(
+    events: &[adapter::codex::CodexTokenUsageEvent],
+    timezone: Option<&str>,
+    _display_timezone: Option<&jiff::tz::TimeZone>,
+    pricing: &PricingMap,
+) -> CodexCostTables {
+    let speed = adapter::codex::resolve_codex_speed(csusage_core::cli::CodexSpeed::Auto);
+    let mut tables = CodexCostTables::default();
+    let Ok(daily) = adapter::codex::aggregate_events(events, AgentReportKind::Daily, timezone)
+    else {
+        return tables;
+    };
+    let Ok(by_session) =
+        adapter::codex::aggregate_events(events, AgentReportKind::Session, timezone)
+    else {
+        return tables;
+    };
+    for (date, group) in daily {
+        for (model, usage) in &group.models {
+            let cost = adapter::codex::calculate_codex_model_cost(model, usage, pricing, speed);
+            *tables.day.entry(date.clone()).or_default() += cost;
+            *tables.model.entry(model.clone()).or_default() += cost;
+        }
+    }
+    for (session_id, group) in by_session {
+        for (model, usage) in &group.models {
+            let cost = adapter::codex::calculate_codex_model_cost(model, usage, pricing, speed);
+            *tables.session.entry(session_id.clone()).or_default() += cost;
+        }
+    }
+    tables
 }
 
 type AgentLoader = fn(&SharedArgs, &PricingMap) -> Result<Vec<LoadedEntry>>;
@@ -143,7 +191,6 @@ fn push_entry(entries: &mut Vec<DashboardEntry>, agent: &'static str, entry: Loa
 fn codex_entry(
     event: &adapter::codex::CodexTokenUsageEvent,
     timezone: Option<&jiff::tz::TimeZone>,
-    pricing: &PricingMap,
 ) -> DashboardEntry {
     let timestamp_ms = parse_ts_timestamp(&event.timestamp)
         .map(|timestamp| timestamp.as_millis())
@@ -153,7 +200,10 @@ fn codex_entry(
         session_id: event.session_id.clone(),
         timestamp_ms,
         date: format_date_tz(TimestampMs::from_millis(timestamp_ms), timezone),
-        model: event.model.clone(),
+        model: event
+            .model
+            .as_deref()
+            .map(|model| csusage_core::model_aliases::resolve_model_name(model).into_owned()),
         // Codex reports `input_tokens` inclusive of cached input; the CLI
         // rows expose the non-cached portion, so match that here.
         input_tokens: event.input_tokens.saturating_sub(
@@ -164,25 +214,10 @@ fn codex_entry(
         output_tokens: event.output_tokens,
         cache_read_tokens: event.cached_input_tokens,
         cache_write_tokens: event.cache_creation_tokens,
-        cost_usd: calculate_cost_for_usage_at(
-            event.model.as_deref(),
-            csusage_core::TokenUsageRaw {
-                input_tokens: event.input_tokens.saturating_sub(
-                    event
-                        .cached_input_tokens
-                        .saturating_add(event.cache_creation_tokens),
-                ),
-                output_tokens: event.output_tokens,
-                cache_creation_input_tokens: event.cache_creation_tokens,
-                cache_read_input_tokens: event.cached_input_tokens,
-                speed: None,
-                cache_creation: None,
-            },
-            None,
-            Some(TimestampMs::from_millis(timestamp_ms)),
-            csusage_core::cli::CostMode::Auto,
-            Some(pricing),
-        ),
+        // Priced via `codex_cost_tables` through the same aggregation the
+        // CLI report rows use (long-context tiers, speed policy, and model
+        // aliases cannot be reproduced per event).
+        cost_usd: 0.0,
     }
 }
 
@@ -230,8 +265,39 @@ struct Session {
     models: BTreeSet<String>,
 }
 
+/// Adds the aggregated codex costs (whose per-entry cost is zero) to the
+/// day / agent / model / session totals.
+fn apply_codex_costs(
+    days: &mut BTreeMap<String, Totals>,
+    agents: &mut BTreeMap<&'static str, Totals>,
+    models: &mut BTreeMap<String, Totals>,
+    sessions: &mut BTreeMap<(&'static str, String), Session>,
+    codex_costs: &CodexCostTables,
+) {
+    let mut agent_cost = 0.0;
+    for (date, cost) in &codex_costs.day {
+        if let Some(totals) = days.get_mut(date) {
+            totals.cost_usd += cost;
+        }
+        agent_cost += cost;
+    }
+    if let Some(codex) = agents.get_mut("codex") {
+        codex.cost_usd = agent_cost;
+    }
+    for (model, cost) in &codex_costs.model {
+        if let Some(totals) = models.get_mut(model) {
+            totals.cost_usd += cost;
+        }
+    }
+    for (session_id, cost) in &codex_costs.session {
+        if let Some(session) = sessions.get_mut(&("codex", session_id.clone())) {
+            session.totals.cost_usd += cost;
+        }
+    }
+}
+
 /// Builds the dashboard JSON payload from per-entry records.
-fn build_dashboard(entries: &[DashboardEntry]) -> Value {
+fn build_dashboard(entries: &[DashboardEntry], codex_costs: &CodexCostTables) -> Value {
     let mut days: BTreeMap<String, Totals> = BTreeMap::new();
     let mut agents: BTreeMap<&'static str, Totals> = BTreeMap::new();
     let mut models: BTreeMap<String, Totals> = BTreeMap::new();
@@ -261,6 +327,13 @@ fn build_dashboard(entries: &[DashboardEntry]) -> Value {
         }
     }
 
+    apply_codex_costs(
+        &mut days,
+        &mut agents,
+        &mut models,
+        &mut sessions,
+        codex_costs,
+    );
     let days_json: Vec<Value> = days
         .iter()
         .map(|(date, totals)| totals_json(date, totals))
