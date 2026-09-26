@@ -230,7 +230,7 @@ fn day_key(date: jiff::civil::Date) -> i64 {
         / 86_400
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 struct Totals {
     input_tokens: u64,
     output_tokens: u64,
@@ -299,15 +299,25 @@ fn apply_codex_costs(
 /// Builds the dashboard JSON payload from per-entry records.
 fn build_dashboard(entries: &[DashboardEntry], codex_costs: &CodexCostTables) -> Value {
     let mut days: BTreeMap<String, Totals> = BTreeMap::new();
+    let mut day_agents: BTreeMap<(String, &'static str), Totals> = BTreeMap::new();
+    let mut day_models: BTreeMap<(String, String), Totals> = BTreeMap::new();
     let mut agents: BTreeMap<&'static str, Totals> = BTreeMap::new();
     let mut models: BTreeMap<String, Totals> = BTreeMap::new();
     let mut sessions: BTreeMap<(&'static str, String), Session> = BTreeMap::new();
 
     for entry in entries {
         days.entry(entry.date.clone()).or_default().add(entry);
+        day_agents
+            .entry((entry.date.clone(), entry.agent))
+            .or_default()
+            .add(entry);
         agents.entry(entry.agent).or_default().add(entry);
         if let Some(model) = &entry.model {
             models.entry(model.clone()).or_default().add(entry);
+            day_models
+                .entry((entry.date.clone(), model.clone()))
+                .or_default()
+                .add(entry);
         }
         let session = sessions
             .entry((entry.agent, entry.session_id.clone()))
@@ -334,9 +344,30 @@ fn build_dashboard(entries: &[DashboardEntry], codex_costs: &CodexCostTables) ->
         &mut sessions,
         codex_costs,
     );
+    let mut day_agent_map: BTreeMap<String, BTreeMap<&'static str, Totals>> = BTreeMap::new();
+    for ((date, agent), totals) in &day_agents {
+        day_agent_map
+            .entry(date.clone())
+            .or_default()
+            .insert(*agent, (*totals).clone());
+    }
+    let mut day_model_map: BTreeMap<String, BTreeMap<String, Totals>> = BTreeMap::new();
+    for ((date, model), totals) in &day_models {
+        day_model_map
+            .entry(date.clone())
+            .or_default()
+            .insert(model.clone(), (*totals).clone());
+    }
     let days_json: Vec<Value> = days
         .iter()
-        .map(|(date, totals)| totals_json(date, totals))
+        .map(|(date, totals)| {
+            totals_json(
+                date,
+                totals,
+                day_agent_map.get(date),
+                day_model_map.get(date),
+            )
+        })
         .collect();
     let agents_json: Vec<Value> = agents
         .iter()
@@ -445,8 +476,13 @@ fn build_dashboard(entries: &[DashboardEntry], codex_costs: &CodexCostTables) ->
     })
 }
 
-fn totals_json(date: &str, totals: &Totals) -> Value {
-    json!({
+fn totals_json(
+    date: &str,
+    totals: &Totals,
+    day_agents: Option<&BTreeMap<&'static str, Totals>>,
+    day_models: Option<&BTreeMap<String, Totals>>,
+) -> Value {
+    let mut value = json!({
         "date": date,
         "inputTokens": totals.input_tokens,
         "outputTokens": totals.output_tokens,
@@ -455,7 +491,36 @@ fn totals_json(date: &str, totals: &Totals) -> Value {
         "totalTokens": totals.total_tokens,
         "costUsd": totals.cost_usd,
         "sessions": totals.sessions.len(),
-    })
+    });
+    let breakdown = |name: &str, entry: &Totals| {
+        json!({
+            "name": name,
+            "inputTokens": entry.input_tokens,
+            "outputTokens": entry.output_tokens,
+            "cacheReadTokens": entry.cache_read_tokens,
+            "cacheWriteTokens": entry.cache_write_tokens,
+            "totalTokens": entry.total_tokens,
+            "costUsd": entry.cost_usd,
+            "sessions": entry.sessions.len(),
+        })
+    };
+    if let Some(agents) = day_agents {
+        value["agents"] = json!(
+            agents
+                .iter()
+                .map(|(agent, agent_totals)| breakdown(agent, agent_totals))
+                .collect::<Vec<_>>()
+        );
+    }
+    if let Some(models) = day_models {
+        value["models"] = json!(
+            models
+                .iter()
+                .map(|(model, model_totals)| breakdown(model, model_totals))
+                .collect::<Vec<_>>()
+        );
+    }
+    value
 }
 
 /// Returns (current streak, longest streak) in days. `today` is the ordinal

@@ -181,6 +181,11 @@ button:focus-visible, summary:focus-visible {
   cursor: default;
   transition: transform 100ms ease, box-shadow 100ms ease;
 }
+.heat-cell.style-pointer { cursor: pointer; }
+.heat-cell.selected { outline: 2px solid #e0533d; outline-offset: -1px; }
+.day-filter { margin: 0 0 12px; font-size: 13px; color: var(--text); }
+.day-filter button { border: 1px solid var(--line); background: transparent; color: inherit; border-radius: 999px; padding: 2px 12px; cursor: pointer; font-size: 12px; }
+.day-filter button:hover { background: var(--card-2); }
 .heat-cell:hover {
   position: relative;
   z-index: 1;
@@ -321,6 +326,7 @@ const AGENT_COLORS = ['#2f73c8', '#8a42ad', '#16866f', '#ce6b32', '#b83e6c', '#6
 const DAY_MS = 86_400_000;
 let data = null;
 let mode = 'daily';
+let selectedDate = null;
 
 const fmtInt = value => Number(value || 0).toLocaleString('zh-CN');
 
@@ -390,8 +396,19 @@ async function main() {
 
 function render() {
   const user = String(data.user || 'user');
-  const agents = Array.isArray(data.agents) ? data.agents : [];
-  const sessions = Array.isArray(data.sessions) ? data.sessions : [];
+  let agents = Array.isArray(data.agents) ? data.agents : [];
+  let sessions = Array.isArray(data.sessions) ? data.sessions : [];
+  let models = Array.isArray(data.models) ? data.models : [];
+  if (selectedDate) {
+    const day = (data.days || []).find(entry => String(entry.date) === selectedDate);
+    if (day && Array.isArray(day.agents)) {
+      agents = day.agents.map(entry => ({...entry, agent: entry.name}));
+      models = (Array.isArray(day.models) ? day.models : []).map(entry => ({...entry, model: entry.name}));
+    }
+    const startMs = Date.parse(selectedDate + 'T00:00:00Z');
+    const endMs = startMs + 86_400_000;
+    sessions = sessions.filter(session => (session.endMs ?? 0) >= startMs && (session.startMs ?? 0) < endMs);
+  }
   const peak = data.peakDay || {};
   const generatedAt = data.generatedAt ? new Date(data.generatedAt).toLocaleString('zh-CN', {dateStyle: 'medium', timeStyle: 'short'}) : '—';
   const app = document.getElementById('app');
@@ -426,8 +443,9 @@ function render() {
       <div class="heatmap-scroll"><div id="heatmap"></div></div>
     </section>
     <section class="details-stack" aria-label="详细用量">
+      ${selectedDate ? `<div class="day-filter">已按 ${escapeHtml(selectedDate)} 过滤 · <button type="button" onclick="toggleDay('${escapeHtml(selectedDate)}')">显示全部</button></div>` : ''}
       ${renderAgentPanel(agents)}
-      ${renderModelPanel(Array.isArray(data.models) ? data.models : [])}
+      ${renderModelPanel(models)}
       ${renderSessionPanel(sessions)}
     </section>
     <div style="margin-top:18px;text-align:center;color:var(--faint);font-size:11px">数据更新于 ${escapeHtml(generatedAt)}</div>
@@ -600,14 +618,21 @@ function renderHeatmap() {
         : cell.record
           ? `${key} · ${fmtCompact(cell.record.totalTokens)} tokens · ${fmtCost(cell.record.costUsd)}`
           : `${key} · 无用量`;
-      return heatCell(cell.value, maxValue, tip);
+      return heatCell(cell.value, maxValue, tip, key);
     }).join('')}</div>`).join('');
   }
   return `<div class="heatmap-content"><div class="heatmap-grid">${gridHtml}</div><div class="month-labels">${labelsHtml}</div></div>`;
 }
 
-function heatCell(value, max, tip) {
-  return `<span class="heat-cell" style="background:${HEAT[heatLevel(value, max)]}" data-tip="${escapeHtml(tip)}" role="img" aria-label="${escapeHtml(tip)}"></span>`;
+function heatCell(value, max, tip, date) {
+  const selected = date && date === selectedDate ? ' selected' : '';
+  const cursor = date ? ' style-pointer' : '';
+  return `<span class="heat-cell${selected}${cursor}" style="background:${HEAT[heatLevel(value, max)]}" data-tip="${escapeHtml(tip)}" role="img" aria-label="${escapeHtml(tip)}"${date ? ` onclick="toggleDay('${date}')"` : ''}></span>`;
+}
+
+function toggleDay(date) {
+  selectedDate = selectedDate === date ? null : date;
+  render();
 }
 
 function heatLevel(value, max) {
