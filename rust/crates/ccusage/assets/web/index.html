@@ -159,11 +159,11 @@ button:focus-visible, summary:focus-visible {
   scrollbar-width: thin;
   scrollbar-color: #d8d8d8 transparent;
 }
-.heatmap-content { min-width: 720px; }
+.heatmap-content { min-width: 0; }
 .month-labels, .heatmap-grid {
   display: grid;
   grid-template-columns: repeat(53, minmax(0, 1fr));
-  gap: 4px;
+  gap: 3px;
 }
 .month-labels {
   min-height: 18px;
@@ -177,7 +177,7 @@ button:focus-visible, summary:focus-visible {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 .heat-cell {
   width: 100%;
@@ -565,6 +565,28 @@ function renderHeatmap() {
   const {start} = activityRange();
   const today = utcDate(new Date());
   const daysByDate = new Map((data.days || []).map(day => [String(day.date), day]));
+  // Rank the nonzero day totals by percentile so the palette spreads the
+  // observed distribution evenly.
+  activityRanks.clear();
+  const nonzero = (data.days || [])
+    .map(day => Number(day.totalTokens || 0))
+    .filter(value => value > 0)
+    .sort((a, b) => a - b);
+  nonzero.forEach((value, index) => activityRanks.set(value, index / Math.max(1, nonzero.length - 1)));
+  // Weekly mode grades the week totals.
+  if (nonzero.length) {
+    const weeklyValues = [];
+    for (let weekIndex = 0; weekIndex < 53; weekIndex++) {
+      const weekStart = addUtcDays(start, weekIndex * 7);
+      let total = 0;
+      for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+        total += Number(daysByDate.get(dateKey(addUtcDays(weekStart, dayIndex)))?.totalTokens || 0);
+      }
+      weeklyValues.push(total);
+    }
+    const sortedWeekly = weeklyValues.filter(v => v > 0).sort((a, b) => a - b);
+    sortedWeekly.forEach((value, index) => activityRanks.set(value, index / Math.max(1, sortedWeekly.length - 1)));
+  }
   const columns = [];
   const weeklyTotals = new Map();
   let cumulative = 0;
@@ -643,10 +665,17 @@ function toggleDay(date) {
   render();
 }
 
+// Values are graded by their percentile rank among the nonzero days
+// (activity_heights, set in renderHeatmap), not by the absolute max. That
+// spreads the observed usage evenly across the palette instead of piling
+// most days into the same dark bucket.
+const activityRanks = new Map();
+
 function heatLevel(value, max) {
   if (!value || value <= 0) return 0;
-  const ratio = Math.log1p(value) / Math.log1p(max);
-  return Math.max(1, Math.min(11, Math.ceil(ratio * 11)));
+  const rank = activityRanks.get(value);
+  if (rank !== undefined) return 1 + Math.min(10, Math.floor(rank * 11));
+  return Math.max(1, Math.min(11, Math.ceil((Math.log1p(value) / Math.log1p(max)) * 11)));
 }
 
 const tooltip = document.getElementById('tooltip');
