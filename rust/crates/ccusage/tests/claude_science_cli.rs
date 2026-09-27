@@ -7,11 +7,17 @@ fn claude_science_cli_tables_snapshot_production_stdout_and_stderr() {
     create_fixture(fixture.path("claude-science/metadata.db"));
 
     for kind in ["daily", "monthly", "session"] {
+        // Each run diffs against its own snapshot state; use a fresh file so
+        // the three report kinds do not consume each other's deltas.
         let output = std::process::Command::new(env!("CARGO_BIN_EXE_csusage"))
             .env_clear()
             .env("HOME", fixture.path("home"))
             .env("USERPROFILE", fixture.path("userprofile"))
             .env("XDG_CONFIG_HOME", fixture.path("xdg-config"))
+            .env(
+                "CSUSAGE_CLAUDE_SCIENCE_STATE",
+                fixture.path(format!("state-{kind}.json")),
+            )
             .env(
                 "CLAUDE_SCIENCE_DB",
                 fixture.path("claude-science/metadata.db"),

@@ -88,6 +88,9 @@ fn build_usage_payload(args: &WebArgs, cache: &RemoteCache) -> Result<serde_json
         let dashboard = cache.fetch(remote);
         merge_dashboard(&mut local, &dashboard, remote);
     }
+    if let Some(payload) = local.as_object_mut() {
+        payload.insert("version".into(), env!("CARGO_PKG_VERSION").into());
+    }
     Ok(local)
 }
 

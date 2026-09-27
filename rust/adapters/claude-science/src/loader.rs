@@ -26,6 +26,7 @@ pub(super) struct FrameUsage {
     cache_write_tokens: u64,
     recorded_cost_usd: Option<f64>,
     timestamp_ms: TimestampMs,
+    created_ms: i64,
 }
 
 /// Loads Claude Science frame usage from all discovered databases.
@@ -40,16 +41,29 @@ pub fn load_entries(shared: &SharedArgs, pricing: &PricingMap) -> Result<Vec<Loa
 fn load_entries_inner(shared: &SharedArgs, pricing: &PricingMap) -> Result<Vec<LoadedEntry>> {
     let timezone = parse_tz(shared.timezone.as_deref());
     let mut entries = Vec::new();
+    let state_path = crate::state::state_path();
+    let mut state = crate::state::load_state(&state_path);
+    let mut dirty = false;
     for path in paths::database_paths()? {
         match read_frames(&path) {
             Ok(frames) => {
                 for frame in frames {
-                    entries.push(frame_to_loaded(
-                        frame,
-                        timezone.as_ref(),
-                        shared.mode,
-                        pricing,
-                    ));
+                    // Observations are keyed per frame (the primary usage
+                    // record), not per session: a root frame carries the
+                    // session cumulative total while sibling frames carry
+                    // their own records, so a session key would make them
+                    // overwrite each other.
+                    let frame_key = frame.id.clone();
+                    let deltas = diff_against_snapshot(&mut state, &frame_key, frame);
+                    for delta in deltas {
+                        dirty = true;
+                        entries.push(frame_to_loaded(
+                            delta,
+                            timezone.as_ref(),
+                            shared.mode,
+                            pricing,
+                        ));
+                    }
                 }
             }
             Err(error) => {
@@ -59,8 +73,96 @@ fn load_entries_inner(shared: &SharedArgs, pricing: &PricingMap) -> Result<Vec<L
             }
         }
     }
+    if dirty && let Err(error) = crate::state::save_state(&state_path, &state) {
+        debug_log(shared, format!("failed to persist snapshot state: {error}"));
+    }
     entries.sort_by_key(|entry| entry.timestamp);
     Ok(entries)
+}
+
+/// Claude Science records usage as a per-session cumulative total. To keep
+/// daily reports meaningful this adapter persists the previous observation of
+/// every session and reports only the delta since then:
+///
+/// - a previously seen session contributes the difference between its current
+///   and last-observed totals, dated today;
+/// - a session seen for the first time whose totals span multiple days is
+///   spread evenly across its `created_at`..=`updated_at` range so history
+///   does not pile onto the last day;
+/// - an unchanged session contributes nothing.
+fn diff_against_snapshot(
+    state: &mut crate::state::SnapshotState,
+    session_id: &str,
+    frame: FrameUsage,
+) -> Vec<FrameUsage> {
+    let observed = crate::state::SessionTotals {
+        input_tokens: frame.input_tokens,
+        output_tokens: frame.output_tokens,
+        cache_read_tokens: frame.cache_read_tokens,
+        cache_write_tokens: frame.cache_write_tokens,
+        recorded_cost_usd: frame.recorded_cost_usd,
+    };
+    let delta = |timestamp_ms: i64| FrameUsage {
+        id: frame.id.clone(),
+        session_id: frame.session_id.clone(),
+        model: frame.model.clone(),
+        project_name: frame.project_name.clone(),
+        input_tokens: frame.input_tokens,
+        output_tokens: frame.output_tokens,
+        cache_read_tokens: frame.cache_read_tokens,
+        cache_write_tokens: frame.cache_write_tokens,
+        recorded_cost_usd: frame.recorded_cost_usd,
+        timestamp_ms: TimestampMs::from_millis(timestamp_ms),
+        created_ms: frame.created_ms,
+    };
+    let Some(previous) = state.sessions.get(session_id) else {
+        // First observation of this session.
+        state.sessions.insert(session_id.to_string(), observed);
+        let day_ms = 86_400_000;
+        let span_days = ((frame.timestamp_ms.as_millis() - frame.created_ms.max(0)) / day_ms)
+            .clamp(0, 365) as u64;
+        if span_days <= 1 {
+            return vec![delta(frame.timestamp_ms.as_millis())];
+        }
+        let mut deltas = Vec::new();
+        for index in 0..=span_days {
+            let timestamp_ms = frame.created_ms + index as i64 * day_ms;
+            let portion = |total: u64| total / span_days + u64::from((total % span_days) > index);
+            let mut entry = delta(timestamp_ms);
+            entry.input_tokens = portion(frame.input_tokens);
+            entry.output_tokens = portion(frame.output_tokens);
+            entry.cache_read_tokens = portion(frame.cache_read_tokens);
+            entry.cache_write_tokens = portion(frame.cache_write_tokens);
+            entry.recorded_cost_usd = frame.recorded_cost_usd.map(|cost| cost / span_days as f64);
+            deltas.push(entry);
+        }
+        return deltas;
+    };
+    let input_tokens = frame.input_tokens.saturating_sub(previous.input_tokens);
+    let output_tokens = frame.output_tokens.saturating_sub(previous.output_tokens);
+    let cache_read_tokens = frame
+        .cache_read_tokens
+        .saturating_sub(previous.cache_read_tokens);
+    let cache_write_tokens = frame
+        .cache_write_tokens
+        .saturating_sub(previous.cache_write_tokens);
+    let recorded_cost_usd = match (frame.recorded_cost_usd, previous.recorded_cost_usd) {
+        (Some(current), Some(seen)) => Some((current - seen).max(0.0)),
+        (Some(current), None) => Some(current),
+        _ => None,
+    };
+    state.sessions.insert(session_id.to_string(), observed);
+    if input_tokens == 0 && output_tokens == 0 && cache_read_tokens == 0 && cache_write_tokens == 0
+    {
+        return Vec::new();
+    }
+    let mut entry = delta(frame.timestamp_ms.as_millis());
+    entry.input_tokens = input_tokens;
+    entry.output_tokens = output_tokens;
+    entry.cache_read_tokens = cache_read_tokens;
+    entry.cache_write_tokens = cache_write_tokens;
+    entry.recorded_cost_usd = recorded_cost_usd;
+    vec![entry]
 }
 
 fn read_frames(path: &std::path::Path) -> Result<Vec<FrameUsage>> {
@@ -72,13 +174,15 @@ fn read_frames(path: &std::path::Path) -> Result<Vec<FrameUsage>> {
     let query = if projects_table_exists(&connection) {
         "SELECT frames.id, COALESCE(frames.root_frame_id, frames.id), frames.model, \
          frames.input_tokens, frames.output_tokens, frames.cache_read_tokens, \
-         frames.cache_write_tokens, frames.total_cost, frames.updated_at, projects.name \
+         frames.cache_write_tokens, frames.total_cost, frames.updated_at, projects.name, \
+         frames.created_at \
          FROM frames LEFT JOIN projects ON projects.id = frames.project_id \
          WHERE frames.input_tokens IS NOT NULL AND frames.output_tokens IS NOT NULL"
     } else {
         "SELECT frames.id, COALESCE(frames.root_frame_id, frames.id), frames.model, \
          frames.input_tokens, frames.output_tokens, frames.cache_read_tokens, \
-         frames.cache_write_tokens, frames.total_cost, frames.updated_at, NULL \
+         frames.cache_write_tokens, frames.total_cost, frames.updated_at, NULL, \
+         frames.created_at \
          FROM frames \
          WHERE frames.input_tokens IS NOT NULL AND frames.output_tokens IS NOT NULL"
     };
@@ -117,6 +221,11 @@ fn read_frames(path: &std::path::Path) -> Result<Vec<FrameUsage>> {
             recorded_cost_usd: statement.read::<Option<f64>, _>(7).ok().flatten(),
             timestamp_ms: TimestampMs::from_millis(timestamp_ms),
             project_name: statement.read::<Option<String>, _>(9).ok().flatten(),
+            created_ms: statement
+                .read::<Option<i64>, _>(10)
+                .ok()
+                .flatten()
+                .unwrap_or_default(),
         });
     }
     Ok(frames)

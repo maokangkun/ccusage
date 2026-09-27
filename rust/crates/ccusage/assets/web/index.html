@@ -14,11 +14,17 @@
   --line: #ececec;
   --line-strong: #dedede;
   --blue-0: #ebedf0;
-  --blue-1: #c9e3f6;
-  --blue-2: #8ec9ee;
-  --blue-3: #4cabe3;
-  --blue-4: #1f7fd4;
-  --blue-5: #0a4dad;
+  --blue-1: #d3e2f1;
+  --blue-2: #bad7f2;
+  --blue-3: #9fcbf1;
+  --blue-4: #7dbbea;
+  --blue-5: #5bafe3;
+  --blue-6: #3e97d7;
+  --blue-7: #2776c4;
+  --blue-8: #1055b2;
+  --blue-9: #0948a1;
+  --blue-10: #074190;
+  --blue-11: #063a80;
   --shadow: 0 18px 50px rgba(0, 0, 0, 0.06);
 }
 
@@ -321,7 +327,7 @@ tr:last-child td { border-bottom: 0; }
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
 <script>
-const HEAT = ['var(--blue-0)', 'var(--blue-1)', 'var(--blue-2)', 'var(--blue-3)', 'var(--blue-4)', 'var(--blue-5)'];
+const HEAT = Array.from({length: 12}, (_, index) => `var(--blue-${index})`);
 const AGENT_COLORS = ['#2f73c8', '#8a42ad', '#16866f', '#ce6b32', '#b83e6c', '#66853b', '#7f6acb', '#398aab', '#a97318', '#5b6c88'];
 const DAY_MS = 86_400_000;
 let data = null;
@@ -448,7 +454,7 @@ function render() {
       ${renderModelPanel(models)}
       ${renderSessionPanel(sessions)}
     </section>
-    <div style="margin-top:18px;text-align:center;color:var(--faint);font-size:11px">数据更新于 ${escapeHtml(generatedAt)}</div>
+    <div style="margin-top:18px;text-align:center;color:var(--faint);font-size:11px">数据更新于 ${escapeHtml(generatedAt)} · csusage ${escapeHtml(String(data.version || ''))}</div>
   `;
   setMode(mode);
 }
@@ -638,11 +644,7 @@ function toggleDay(date) {
 function heatLevel(value, max) {
   if (!value || value <= 0) return 0;
   const ratio = Math.log1p(value) / Math.log1p(max);
-  if (ratio <= 0.35) return 1;
-  if (ratio <= 0.55) return 2;
-  if (ratio <= 0.72) return 3;
-  if (ratio <= 0.88) return 4;
-  return 5;
+  return Math.max(1, Math.min(11, Math.ceil(ratio * 11)));
 }
 
 const tooltip = document.getElementById('tooltip');

@@ -7,6 +7,7 @@ use csusage_core::*;
 mod loader;
 mod paths;
 mod report;
+mod state;
 
 use crate::{
     PricingMap, Result, cli::AgentCommandArgs, print_json_or_jq, print_usage_table, sort_summaries,

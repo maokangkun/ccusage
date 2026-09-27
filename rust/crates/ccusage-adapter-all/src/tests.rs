@@ -690,12 +690,25 @@ fn claude_science_fixture_reports_daily_monthly_session_json_and_table_snapshots
         "CLAUDE_SCIENCE_DB",
         fixture.path("claude-science/metadata.db").into_os_string(),
     );
+    // The adapter diffs against a persisted snapshot; give this test its own
+    // state file via the same env guard (a second EnvVarsGuard would deadlock
+    // on the shared env lock).
+    // SAFETY: single-threaded test env mutation while the env lock is held.
+    unsafe {
+        std::env::set_var("CSUSAGE_CLAUDE_SCIENCE_STATE", fixture.path("state.json"));
+    }
     let mut shared = fixture_shared("20990101", "20990301");
     shared.mode = CostMode::Calculate;
 
+    // Each report kind must observe the same fixture from a fresh snapshot:
+    // the adapter persists deltas between runs, so reset the state file to
+    // avoid daily/monthly/session loads consuming each other's usage.
     let daily = load_rows(AgentReportKind::Daily, &shared).unwrap();
+    std::fs::remove_file(fixture.path("state.json")).ok();
     let monthly = load_rows(AgentReportKind::Monthly, &shared).unwrap();
+    std::fs::remove_file(fixture.path("state.json")).ok();
     let session = load_rows(AgentReportKind::Session, &shared).unwrap();
+    std::fs::remove_file(fixture.path("state.json")).ok();
 
     assert_eq!(daily.detected_agents, vec!["claude-science"]);
     assert_eq!(monthly.detected_agents, vec!["claude-science"]);
@@ -768,8 +781,11 @@ fn claude_science_fixture_reports_daily_monthly_session_json_and_table_snapshots
     display.mode = CostMode::Display;
     let mut auto = fixture_shared("20990101", "20990401");
     auto.mode = CostMode::Auto;
+    std::fs::remove_file(fixture.path("state.json")).ok();
     let display_rows = load_rows(AgentReportKind::Daily, &display).unwrap();
+    std::fs::remove_file(fixture.path("state.json")).ok();
     let auto_rows = load_rows(AgentReportKind::Daily, &auto).unwrap();
+    std::fs::remove_file(fixture.path("state.json")).ok();
 
     let display_march = display_rows
         .rows
