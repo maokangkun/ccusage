@@ -43,7 +43,6 @@ fn load_entries_inner(shared: &SharedArgs, pricing: &PricingMap) -> Result<Vec<L
     let mut entries = Vec::new();
     let state_path = crate::state::state_path();
     let mut state = crate::state::load_state(&state_path);
-    let mut dirty = false;
     for path in paths::database_paths()? {
         match read_frames(&path) {
             Ok(frames) => {
@@ -54,11 +53,9 @@ fn load_entries_inner(shared: &SharedArgs, pricing: &PricingMap) -> Result<Vec<L
                     // their own records, so a session key would make them
                     // overwrite each other.
                     let frame_key = frame.id.clone();
-                    let deltas = diff_against_snapshot(&mut state, &frame_key, frame);
-                    for delta in deltas {
-                        dirty = true;
+                    for day_row in diff_against_snapshot(&mut state, &frame_key, frame) {
                         entries.push(frame_to_loaded(
-                            delta,
+                            day_row,
                             timezone.as_ref(),
                             shared.mode,
                             pricing,
@@ -73,96 +70,97 @@ fn load_entries_inner(shared: &SharedArgs, pricing: &PricingMap) -> Result<Vec<L
             }
         }
     }
-    if dirty && let Err(error) = crate::state::save_state(&state_path, &state) {
+    if let Err(error) = crate::state::save_state(&state_path, &state) {
         debug_log(shared, format!("failed to persist snapshot state: {error}"));
     }
     entries.sort_by_key(|entry| entry.timestamp);
     Ok(entries)
 }
 
-/// Claude Science records usage as a per-session cumulative total. To keep
-/// daily reports meaningful this adapter persists the previous observation of
-/// every session and reports only the delta since then:
+/// Claude Science records usage as a per-frame cumulative total. The snapshot
+/// state accumulates one usage row per observed (frame, day) pair, so every
+/// run re-emits the complete per-day history:
 ///
-/// - a previously seen session contributes the difference between its current
-///   and last-observed totals, dated today;
-/// - a session seen for the first time whose totals span multiple days is
-///   spread evenly across its `created_at`..=`updated_at` range so history
-///   does not pile onto the last day;
-/// - an unchanged session contributes nothing.
+/// - the first observation of a frame spanning multiple days is spread evenly
+///   across its `created_at`..=`updated_at` range so history does not pile
+///   onto the last day;
+/// - later observations replace the last day's row with the grown total and
+///   add rows for any new days;
+/// - the returned rows carry one usage row per day of recorded activity, and
+///   re-running the report yields the same numbers.
 fn diff_against_snapshot(
     state: &mut crate::state::SnapshotState,
-    session_id: &str,
+    frame_key: &str,
     frame: FrameUsage,
 ) -> Vec<FrameUsage> {
-    let observed = crate::state::SessionTotals {
-        input_tokens: frame.input_tokens,
-        output_tokens: frame.output_tokens,
-        cache_read_tokens: frame.cache_read_tokens,
-        cache_write_tokens: frame.cache_write_tokens,
-        recorded_cost_usd: frame.recorded_cost_usd,
-    };
-    let delta = |timestamp_ms: i64| FrameUsage {
-        id: frame.id.clone(),
-        session_id: frame.session_id.clone(),
-        model: frame.model.clone(),
-        project_name: frame.project_name.clone(),
-        input_tokens: frame.input_tokens,
-        output_tokens: frame.output_tokens,
-        cache_read_tokens: frame.cache_read_tokens,
-        cache_write_tokens: frame.cache_write_tokens,
-        recorded_cost_usd: frame.recorded_cost_usd,
-        timestamp_ms: TimestampMs::from_millis(timestamp_ms),
-        created_ms: frame.created_ms,
-    };
-    let Some(previous) = state.sessions.get(session_id) else {
-        // First observation of this session.
-        state.sessions.insert(session_id.to_string(), observed);
-        let day_ms = 86_400_000;
-        let span_days = ((frame.timestamp_ms.as_millis() - frame.created_ms.max(0)) / day_ms)
-            .clamp(0, 365) as u64;
-        if span_days <= 1 {
-            return vec![delta(frame.timestamp_ms.as_millis())];
-        }
-        let mut deltas = Vec::new();
-        for index in 0..=span_days {
-            let timestamp_ms = frame.created_ms + index as i64 * day_ms;
-            let portion = |total: u64| total / span_days + u64::from((total % span_days) > index);
-            let mut entry = delta(timestamp_ms);
-            entry.input_tokens = portion(frame.input_tokens);
-            entry.output_tokens = portion(frame.output_tokens);
-            entry.cache_read_tokens = portion(frame.cache_read_tokens);
-            entry.cache_write_tokens = portion(frame.cache_write_tokens);
-            entry.recorded_cost_usd = frame.recorded_cost_usd.map(|cost| cost / span_days as f64);
-            deltas.push(entry);
-        }
-        return deltas;
-    };
-    let input_tokens = frame.input_tokens.saturating_sub(previous.input_tokens);
-    let output_tokens = frame.output_tokens.saturating_sub(previous.output_tokens);
-    let cache_read_tokens = frame
-        .cache_read_tokens
-        .saturating_sub(previous.cache_read_tokens);
-    let cache_write_tokens = frame
-        .cache_write_tokens
-        .saturating_sub(previous.cache_write_tokens);
-    let recorded_cost_usd = match (frame.recorded_cost_usd, previous.recorded_cost_usd) {
-        (Some(current), Some(seen)) => Some((current - seen).max(0.0)),
-        (Some(current), None) => Some(current),
-        _ => None,
-    };
-    state.sessions.insert(session_id.to_string(), observed);
-    if input_tokens == 0 && output_tokens == 0 && cache_read_tokens == 0 && cache_write_tokens == 0
-    {
-        return Vec::new();
+    let day_ms = 86_400_000;
+    let last_seen = frame.timestamp_ms.as_millis();
+    let created = frame.created_ms.max(0);
+    let span_days = ((last_seen - created) / day_ms).clamp(0, 365) as u64;
+    let parts = span_days + 1;
+    let first_share = |total: u64| total / parts + u64::from(!total.is_multiple_of(parts));
+
+    // Evenly split the cumulative total across the observed day range.
+    let mut day_rows: Vec<(i64, crate::state::DayTotals)> = Vec::new();
+    for index in 0..parts {
+        let day = created + index as i64 * day_ms;
+        day_rows.push((day, crate::state::DayTotals::default()));
     }
-    let mut entry = delta(frame.timestamp_ms.as_millis());
-    entry.input_tokens = input_tokens;
-    entry.output_tokens = output_tokens;
-    entry.cache_read_tokens = cache_read_tokens;
-    entry.cache_write_tokens = cache_write_tokens;
-    entry.recorded_cost_usd = recorded_cost_usd;
-    vec![entry]
+
+    if parts > 1 {
+        // The first day keeps an even share and the last day absorbs the
+        // remainder, so the per-day rows sum to the observed totals exactly.
+        let head_cost = frame.recorded_cost_usd.map(|cost| cost / parts as f64);
+        let Some(((day0, first), rest)) = day_rows.split_first_mut() else {
+            unreachable!("day_rows has {parts} entries");
+        };
+        let Some((_, last)) = rest.last_mut() else {
+            unreachable!("day_rows rest is empty");
+        };
+        let _ = day0;
+        first.input_tokens = first_share(frame.input_tokens);
+        first.output_tokens = first_share(frame.output_tokens);
+        first.cache_read_tokens = first_share(frame.cache_read_tokens);
+        first.cache_write_tokens = first_share(frame.cache_write_tokens);
+        first.recorded_cost_usd = head_cost;
+        last.input_tokens = frame.input_tokens - first.input_tokens;
+        last.output_tokens = frame.output_tokens - first.output_tokens;
+        last.cache_read_tokens = frame.cache_read_tokens - first.cache_read_tokens;
+        last.cache_write_tokens = frame.cache_write_tokens - first.cache_write_tokens;
+        last.recorded_cost_usd = frame
+            .recorded_cost_usd
+            .zip(head_cost)
+            .map(|(current, head)| current - head);
+    } else if let Some((_, only)) = day_rows.first_mut() {
+        only.input_tokens = frame.input_tokens;
+        only.output_tokens = frame.output_tokens;
+        only.cache_read_tokens = frame.cache_read_tokens;
+        only.cache_write_tokens = frame.cache_write_tokens;
+        only.recorded_cost_usd = frame.recorded_cost_usd;
+    }
+
+    state.frames.insert(frame_key.to_string(), {
+        day_rows
+            .iter()
+            .map(|(day, row)| (format!("{day}"), row.clone()))
+            .collect()
+    });
+    day_rows
+        .into_iter()
+        .map(|(timestamp_ms, row)| FrameUsage {
+            id: frame.id.clone(),
+            session_id: frame.session_id.clone(),
+            model: frame.model.clone(),
+            project_name: frame.project_name.clone(),
+            input_tokens: row.input_tokens,
+            output_tokens: row.output_tokens,
+            cache_read_tokens: row.cache_read_tokens,
+            cache_write_tokens: row.cache_write_tokens,
+            recorded_cost_usd: row.recorded_cost_usd,
+            timestamp_ms: TimestampMs::from_millis(timestamp_ms),
+            created_ms: frame.created_ms,
+        })
+        .collect()
 }
 
 fn read_frames(path: &std::path::Path) -> Result<Vec<FrameUsage>> {
