@@ -153,11 +153,8 @@ button:focus-visible, summary:focus-visible {
 .view-switcher button.active { color: var(--text); font-weight: 600; }
 
 .heatmap-scroll {
-  overflow-x: auto;
-  /* Room for the hovered cell's scale(1.22) so it never triggers a scrollbar. */
-  padding: 3px 8px 6px;
-  scrollbar-width: thin;
-  scrollbar-color: #d8d8d8 transparent;
+  overflow-x: hidden;
+  padding: 3px 0 6px;
 }
 .heatmap-content { min-width: 0; }
 .month-labels, .heatmap-grid {
@@ -172,7 +169,7 @@ button:focus-visible, summary:focus-visible {
   font-size: 11px;
   line-height: 1;
 }
-.month-label { overflow: visible; white-space: nowrap; }
+.month-label { overflow: visible; white-space: nowrap; min-width: 0; }
 .week-column {
   display: flex;
   min-width: 0;
